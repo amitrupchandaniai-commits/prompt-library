@@ -1,0 +1,9 @@
+-- Seed prompts are NOT applied as a SQL migration: `prompts.user_id` is a required
+-- foreign key into auth.users, and no user exists yet at migration time (this is a
+-- personal workspace app — every prompt is owned by a real signed-up user).
+--
+-- Instead, run scripts/seed.mjs after creating your account:
+--
+--   node --env-file=.env.local scripts/seed.mjs you@example.com
+--
+-- See docs/DATABASE.md and docs/IMPLEMENTATION_PLAN.md for schema context.
