@@ -12,7 +12,13 @@ export class AnthropicProvider implements AIProvider {
 
   constructor(model: string = DEFAULT_MODEL) {
     this.model = model
-    this.client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+    const workspaceId = process.env.ANTHROPIC_WORKSPACE_ID
+    this.client = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+      // Only some Anthropic accounts (org keys tied to a specific workspace)
+      // require this; harmless to omit for a plain personal API key.
+      defaultHeaders: workspaceId ? { "anthropic-workspace-id": workspaceId } : undefined,
+    })
   }
 
   async generateStructured<T>(
