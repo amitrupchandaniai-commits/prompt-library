@@ -46,8 +46,25 @@ export function PromptForm({
 }) {
   const [state, formAction, pending] = useActionState(action, undefined)
 
+  const allFieldErrors = state?.fieldErrors
+    ? Object.entries(state.fieldErrors).flatMap(([field, messages]) =>
+        (messages ?? []).map((message) => `${field}: ${message}`)
+      )
+    : []
+
   return (
     <form action={formAction} className="space-y-6">
+      {allFieldErrors.length > 0 && (
+        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+          <p className="font-medium">Couldn&apos;t save — please fix the following:</p>
+          <ul className="mt-1 list-inside list-disc">
+            {allFieldErrors.map((message) => (
+              <li key={message}>{message}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2 sm:col-span-2">
           <Label htmlFor="title">Title</Label>

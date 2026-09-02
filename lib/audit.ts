@@ -28,12 +28,18 @@ export async function logAuditEvent(entry: {
   // without it, audit logging is skipped rather than failing the mutation it's attached to.
   if (!client) return
 
-  await client.from("audit_log").insert({
-    user_id: entry.userId,
-    action: entry.action,
-    object_type: entry.objectType,
-    object_id: entry.objectId,
-    previous_value: entry.previousValue ?? null,
-    new_value: entry.newValue ?? null,
-  })
+  try {
+    const { error } = await client.from("audit_log").insert({
+      user_id: entry.userId,
+      action: entry.action,
+      object_type: entry.objectType,
+      object_id: entry.objectId,
+      previous_value: entry.previousValue ?? null,
+      new_value: entry.newValue ?? null,
+    })
+    if (error) console.error("logAuditEvent: insert failed", error)
+  } catch (err) {
+    // Audit logging must never take down the mutation it's attached to.
+    console.error("logAuditEvent: unexpected error", err)
+  }
 }

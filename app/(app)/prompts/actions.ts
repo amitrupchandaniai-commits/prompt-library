@@ -40,38 +40,55 @@ function parsePromptForm(formData: FormData) {
   })
 }
 
+/**
+ * Best-effort: a tag failure should never take down prompt creation/editing,
+ * since the prompt itself has already been saved by the time this runs.
+ */
 async function syncTags(userId: string, promptId: string, tagNames: string[]) {
   const supabase = await createClient()
 
-  await supabase.from("prompt_tags").delete().eq("prompt_id", promptId)
+  try {
+    await supabase.from("prompt_tags").delete().eq("prompt_id", promptId)
 
-  if (tagNames.length === 0) return
+    if (tagNames.length === 0) return
 
-  const tagIds: string[] = []
-  for (const name of tagNames) {
-    const { data: existing } = await supabase
-      .from("tags")
-      .select("id")
-      .eq("user_id", userId)
-      .ilike("name", name)
-      .maybeSingle()
+    const tagIds: string[] = []
+    for (const name of tagNames) {
+      const { data: existing } = await supabase
+        .from("tags")
+        .select("id")
+        .eq("user_id", userId)
+        .ilike("name", name)
+        .maybeSingle()
 
-    if (existing) {
-      tagIds.push(existing.id)
-    } else {
+      if (existing) {
+        tagIds.push(existing.id)
+        continue
+      }
+
       const { data: created, error } = await supabase
         .from("tags")
         .insert({ user_id: userId, name })
         .select("id")
         .single()
-      if (error) throw error
+      if (error || !created) {
+        console.error("syncTags: failed to create tag", name, error)
+        continue
+      }
       tagIds.push(created.id)
     }
-  }
 
-  await supabase
-    .from("prompt_tags")
-    .insert(tagIds.map((tagId) => ({ prompt_id: promptId, tag_id: tagId })))
+    if (tagIds.length === 0) return
+
+    const { error: linkError } = await supabase
+      .from("prompt_tags")
+      .insert(tagIds.map((tagId) => ({ prompt_id: promptId, tag_id: tagId })))
+    if (linkError) {
+      console.error("syncTags: failed to link tags to prompt", promptId, linkError)
+    }
+  } catch (err) {
+    console.error("syncTags: unexpected error", err)
+  }
 }
 
 export async function createPrompt(
