@@ -1,0 +1,48 @@
+import "server-only"
+import Anthropic from "@anthropic-ai/sdk"
+import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod"
+import type { AIProvider, GenerateStructuredParams, GenerateStructuredResult } from "./types"
+
+const DEFAULT_MODEL = "claude-sonnet-5"
+
+export class AnthropicProvider implements AIProvider {
+  readonly name = "anthropic" as const
+  readonly model: string
+  private client: Anthropic
+
+  constructor(model: string = DEFAULT_MODEL) {
+    this.model = model
+    this.client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  }
+
+  async generateStructured<T>(
+    params: GenerateStructuredParams<T>
+  ): Promise<GenerateStructuredResult<T>> {
+    const start = Date.now()
+
+    const response = await this.client.messages.parse({
+      model: this.model,
+      max_tokens: params.maxTokens ?? 4096,
+      system: params.system,
+      messages: [{ role: "user", content: params.prompt }],
+      output_config: {
+        format: zodOutputFormat(params.schema),
+      },
+    })
+
+    const latencyMs = Date.now() - start
+
+    if (!response.parsed_output) {
+      throw new Error("Anthropic returned a response that didn't match the expected schema")
+    }
+
+    return {
+      data: response.parsed_output,
+      provider: "anthropic",
+      model: this.model,
+      inputTokens: response.usage.input_tokens,
+      outputTokens: response.usage.output_tokens,
+      latencyMs,
+    }
+  }
+}

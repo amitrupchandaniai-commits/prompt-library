@@ -12,6 +12,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_usage_log: {
+        Row: {
+          cost_usd: number
+          created_at: string
+          error: string | null
+          feature: string
+          id: string
+          input_tokens: number
+          latency_ms: number
+          model: string
+          output_tokens: number
+          provider: string
+          research_run_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          cost_usd?: number
+          created_at?: string
+          error?: string | null
+          feature: string
+          id?: string
+          input_tokens?: number
+          latency_ms?: number
+          model: string
+          output_tokens?: number
+          provider: string
+          research_run_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          cost_usd?: number
+          created_at?: string
+          error?: string | null
+          feature?: string
+          id?: string
+          input_tokens?: number
+          latency_ms?: number
+          model?: string
+          output_tokens?: number
+          provider?: string
+          research_run_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       audit_log: {
         Row: {
           action: string

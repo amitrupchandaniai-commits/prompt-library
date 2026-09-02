@@ -33,6 +33,7 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Prompt Library", href: "/prompts", icon: Library },
+  { label: "Prompt Builder", href: "/prompt-builder", icon: Wand2 },
   { label: "Collections", href: "/collections", icon: FolderHeart },
   { label: "Favorites", href: "/favorites", icon: Star },
   { label: "Recently Added", href: "/prompts?sort=recent", icon: Clock },
@@ -43,7 +44,6 @@ const NAV_ITEMS: NavItem[] = [
 const COMING_SOON_ITEMS: NavItem[] = [
   { label: "Discover", href: "/discover", icon: Compass, comingSoon: true },
   { label: "Prompt Scout", href: "/prompt-scout", icon: Bot, comingSoon: true },
-  { label: "Prompt Builder", href: "/prompt-builder", icon: Wand2, comingSoon: true },
   { label: "Prompt Improver", href: "/prompt-improver", icon: Sparkles, comingSoon: true },
   { label: "Prompt Tester", href: "/prompt-tester", icon: FlaskConical, comingSoon: true },
   { label: "Sources", href: "/sources", icon: Radar, comingSoon: true },
