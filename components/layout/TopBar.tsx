@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { SearchCommand } from "@/components/layout/SearchCommand"
+import { ThemeToggle } from "@/components/layout/ThemeToggle"
 import type { PromptListItem } from "@/lib/queries/prompts"
 
 export function TopBar({
@@ -24,18 +25,21 @@ export function TopBar({
     <header className="flex h-14 items-center justify-between border-b bg-background px-4">
       <SearchCommand prompts={searchablePrompts} />
 
-      <DropdownMenu>
-        <DropdownMenuTrigger className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent">
-          <Avatar className="size-7">
-            <AvatarFallback>{initial}</AvatarFallback>
-          </Avatar>
-          <span className="hidden sm:inline">{displayName || email}</span>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem render={<a href="/settings" />}>Settings</DropdownMenuItem>
-          <DropdownMenuItem onClick={signOut}>Sign out</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div className="flex items-center gap-1">
+        <ThemeToggle />
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent">
+            <Avatar className="size-7">
+              <AvatarFallback>{initial}</AvatarFallback>
+            </Avatar>
+            <span className="hidden sm:inline">{displayName || email}</span>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem render={<a href="/settings" />}>Settings</DropdownMenuItem>
+            <DropdownMenuItem onClick={signOut}>Sign out</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </header>
   )
 }

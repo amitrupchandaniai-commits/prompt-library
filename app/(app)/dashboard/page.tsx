@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { FileText, CalendarPlus, Star, FolderHeart, Bot, Plus } from "lucide-react"
 import { requireSession } from "@/lib/dal"
 import {
   getDashboardStats,
@@ -20,17 +21,23 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            An overview of your prompt library.
+          </p>
+        </div>
         <Link href="/prompts/new" className={buttonVariants()}>
+          <Plus className="size-4" />
           New prompt
         </Link>
       </div>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <KpiCard label="Total Prompts" value={stats.totalPrompts} />
-        <KpiCard label="Added This Week" value={stats.addedThisWeek} />
-        <KpiCard label="Favorites" value={stats.favoritesCount} />
-        <KpiCard label="Collections" value={stats.collectionsCount} />
+        <KpiCard label="Total Prompts" value={stats.totalPrompts} icon={FileText} />
+        <KpiCard label="Added This Week" value={stats.addedThisWeek} icon={CalendarPlus} />
+        <KpiCard label="Favorites" value={stats.favoritesCount} icon={Star} />
+        <KpiCard label="Collections" value={stats.collectionsCount} icon={FolderHeart} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -91,7 +98,10 @@ export default async function DashboardPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Prompt Scout</CardTitle>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Bot className="size-4 text-muted-foreground" />
+            Prompt Scout
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">

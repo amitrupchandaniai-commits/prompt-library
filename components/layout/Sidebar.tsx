@@ -20,6 +20,7 @@ import {
   HardDrive,
   BarChart3,
   Settings,
+  Sparkle,
 } from "lucide-react"
 
 type NavItem = {
@@ -32,12 +33,16 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Prompt Library", href: "/prompts", icon: Library },
-  { label: "Discover", href: "/discover", icon: Compass, comingSoon: true },
-  { label: "Prompt Scout", href: "/prompt-scout", icon: Bot, comingSoon: true },
   { label: "Collections", href: "/collections", icon: FolderHeart },
   { label: "Favorites", href: "/favorites", icon: Star },
   { label: "Recently Added", href: "/prompts?sort=recent", icon: Clock },
   { label: "Top Rated", href: "/prompts?sort=top-rated", icon: TrendingUp },
+  { label: "Settings", href: "/settings", icon: Settings },
+]
+
+const COMING_SOON_ITEMS: NavItem[] = [
+  { label: "Discover", href: "/discover", icon: Compass, comingSoon: true },
+  { label: "Prompt Scout", href: "/prompt-scout", icon: Bot, comingSoon: true },
   { label: "Prompt Builder", href: "/prompt-builder", icon: Wand2, comingSoon: true },
   { label: "Prompt Improver", href: "/prompt-improver", icon: Sparkles, comingSoon: true },
   { label: "Prompt Tester", href: "/prompt-tester", icon: FlaskConical, comingSoon: true },
@@ -45,53 +50,66 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Google Sheets", href: "/integrations/sheets", icon: Sheet, comingSoon: true },
   { label: "Google Drive", href: "/integrations/drive", icon: HardDrive, comingSoon: true },
   { label: "Analytics", href: "/analytics", icon: BarChart3, comingSoon: true },
-  { label: "Settings", href: "/settings", icon: Settings },
 ]
+
+function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
+  const Icon = item.icon
+  return (
+    <Link
+      href={item.href}
+      className={cn(
+        "group relative flex items-center gap-2.5 rounded-md py-1.5 pr-3 pl-3.5 text-sm font-medium text-sidebar-foreground/75 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+        isActive && "bg-sidebar-accent text-sidebar-accent-foreground"
+      )}
+    >
+      <span
+        className={cn(
+          "absolute top-1/2 left-0 h-4 w-0.5 -translate-y-1/2 rounded-full bg-sidebar-primary opacity-0 transition-opacity",
+          isActive && "opacity-100"
+        )}
+      />
+      <Icon className="size-4 shrink-0" />
+      {item.label}
+    </Link>
+  )
+}
 
 export function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <nav className="flex h-full w-60 flex-col gap-1 border-r bg-sidebar p-3 text-sidebar-foreground">
-      <div className="mb-4 px-2 pt-2">
-        <span className="text-base font-semibold tracking-tight">Prompt Library</span>
+    <nav className="flex h-full w-60 flex-col gap-0.5 overflow-y-auto border-r bg-sidebar p-3 text-sidebar-foreground">
+      <div className="mb-5 flex items-center gap-2 px-1.5 pt-1.5">
+        <span className="flex size-6 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
+          <Sparkle className="size-3.5" />
+        </span>
+        <span className="text-[15px] font-semibold tracking-tight">Prompt Library</span>
       </div>
 
-      {NAV_ITEMS.map((item) => {
-        const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
+      {NAV_ITEMS.map((item) => (
+        <NavLink
+          key={item.label}
+          item={item}
+          isActive={pathname === item.href || pathname.startsWith(item.href + "/")}
+        />
+      ))}
+
+      <div className="mt-5 mb-1.5 px-3.5 text-[11px] font-medium tracking-wide text-sidebar-foreground/40 uppercase">
+        Coming soon
+      </div>
+
+      {COMING_SOON_ITEMS.map((item) => {
         const Icon = item.icon
-
-        if (item.comingSoon) {
-          return (
-            <div
-              key={item.label}
-              aria-disabled="true"
-              title="Coming soon"
-              className="flex items-center justify-between rounded-md px-3 py-2 text-sm text-muted-foreground/60"
-            >
-              <span className="flex items-center gap-2">
-                <Icon className="size-4" />
-                {item.label}
-              </span>
-              <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide">
-                Soon
-              </span>
-            </div>
-          )
-        }
-
         return (
-          <Link
+          <div
             key={item.label}
-            href={item.href}
-            className={cn(
-              "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-              isActive && "bg-sidebar-accent text-sidebar-accent-foreground"
-            )}
+            aria-disabled="true"
+            title="Coming soon"
+            className="flex items-center gap-2.5 rounded-md py-1.5 pr-3 pl-3.5 text-sm text-sidebar-foreground/35"
           >
-            <Icon className="size-4" />
+            <Icon className="size-4 shrink-0" />
             {item.label}
-          </Link>
+          </div>
         )
       })}
     </nav>

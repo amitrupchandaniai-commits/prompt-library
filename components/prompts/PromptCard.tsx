@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Star } from "lucide-react"
+import { Star, Copy } from "lucide-react"
 import { toast } from "sonner"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -14,8 +14,8 @@ export function PromptCard({ prompt }: { prompt: PromptListItem }) {
   const tags = prompt.prompt_tags?.map((pt) => pt.tags?.name).filter(Boolean) ?? []
 
   return (
-    <Card className="flex flex-col">
-      <CardHeader className="flex flex-row items-start justify-between gap-2 pb-2">
+    <Card className="flex flex-col gap-3 py-4 transition-shadow hover:shadow-md">
+      <CardHeader className="flex flex-row items-start justify-between gap-2">
         <Link href={`/prompts/${prompt.id}`} className="min-w-0">
           <h3 className="truncate font-medium hover:underline">{prompt.title}</h3>
         </Link>
@@ -27,8 +27,7 @@ export function PromptCard({ prompt }: { prompt: PromptListItem }) {
           <Button
             type="submit"
             variant="ghost"
-            size="icon"
-            className="size-7"
+            size="icon-sm"
             aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
           >
             <Star className={isFavorite ? "size-4 fill-amber-400 text-amber-400" : "size-4"} />
@@ -36,8 +35,12 @@ export function PromptCard({ prompt }: { prompt: PromptListItem }) {
         </form>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-3">
-        {prompt.description && (
+        {prompt.description ? (
           <p className="line-clamp-2 text-sm text-muted-foreground">{prompt.description}</p>
+        ) : (
+          <p className="line-clamp-2 rounded-md bg-muted/60 px-2 py-1.5 font-mono text-xs text-muted-foreground">
+            {prompt.prompt_text}
+          </p>
         )}
 
         <div className="flex flex-wrap gap-1.5">
@@ -61,6 +64,7 @@ export function PromptCard({ prompt }: { prompt: PromptListItem }) {
               toast.success("Prompt copied to clipboard")
             }}
           >
+            <Copy className="size-3.5" />
             Copy
           </Button>
           <Link
