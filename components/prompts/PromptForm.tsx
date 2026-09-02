@@ -105,7 +105,11 @@ export function PromptForm({
 
         <div className="space-y-2">
           <Label htmlFor="categoryId">Category</Label>
-          <Select name="categoryId" defaultValue={defaultValues?.categoryId || undefined}>
+          <Select
+            name="categoryId"
+            items={categories.map((c) => ({ value: c.id, label: c.name }))}
+            defaultValue={defaultValues?.categoryId || undefined}
+          >
             <SelectTrigger id="categoryId" className="w-full">
               <SelectValue placeholder="Select a category" />
             </SelectTrigger>
@@ -121,7 +125,11 @@ export function PromptForm({
 
         <div className="space-y-2">
           <Label htmlFor="difficulty">Difficulty</Label>
-          <Select name="difficulty" defaultValue={defaultValues?.difficulty || undefined}>
+          <Select
+            name="difficulty"
+            items={DIFFICULTIES.map((d) => ({ value: d, label: d[0].toUpperCase() + d.slice(1) }))}
+            defaultValue={defaultValues?.difficulty || undefined}
+          >
             <SelectTrigger id="difficulty" className="w-full">
               <SelectValue placeholder="Select difficulty" />
             </SelectTrigger>

@@ -46,7 +46,11 @@ export default async function PromptsPage({
           defaultValue={q}
           className="max-w-sm"
         />
-        <Select name="category" defaultValue={category ?? "all"}>
+        <Select
+          name="category"
+          items={[{ value: "all", label: "All categories" }, ...categories.map((c) => ({ value: c.id, label: c.name }))]}
+          defaultValue={category ?? "all"}
+        >
           <SelectTrigger className="w-56">
             <SelectValue placeholder="All categories" />
           </SelectTrigger>
