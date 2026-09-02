@@ -14,25 +14,37 @@ export type PromptFormState = {
   fieldErrors?: Record<string, string[]>
 } | undefined
 
+/**
+ * FormData.get() returns null for a field that isn't present at all (e.g. no
+ * matching input was rendered) or is empty, but Zod's `.optional()` only
+ * accepts `undefined`, not `null` — so an absent field fails validation
+ * instead of being treated as "not provided". Normalize here so every
+ * optional field behaves the same way regardless of why it's empty.
+ */
+function optionalField(formData: FormData, key: string): string | undefined {
+  const value = formData.get(key)
+  return typeof value === "string" && value.length > 0 ? value : undefined
+}
+
 function parsePromptForm(formData: FormData) {
   return PromptSchema.safeParse({
     title: formData.get("title"),
-    description: formData.get("description"),
+    description: optionalField(formData, "description"),
     promptText: formData.get("promptText"),
-    categoryId: formData.get("categoryId"),
-    subcategory: formData.get("subcategory"),
-    useCase: formData.get("useCase"),
-    industry: formData.get("industry"),
-    difficulty: formData.get("difficulty"),
-    promptType: formData.get("promptType"),
+    categoryId: optionalField(formData, "categoryId"),
+    subcategory: optionalField(formData, "subcategory"),
+    useCase: optionalField(formData, "useCase"),
+    industry: optionalField(formData, "industry"),
+    difficulty: optionalField(formData, "difficulty"),
+    promptType: optionalField(formData, "promptType"),
     recommendedModels: (formData.get("recommendedModels") as string | null)
       ?.split(",")
       .map((s) => s.trim())
       .filter(Boolean) ?? [],
-    exampleInput: formData.get("exampleInput"),
-    exampleOutput: formData.get("exampleOutput"),
-    instructions: formData.get("instructions"),
-    notes: formData.get("notes"),
+    exampleInput: optionalField(formData, "exampleInput"),
+    exampleOutput: optionalField(formData, "exampleOutput"),
+    instructions: optionalField(formData, "instructions"),
+    notes: optionalField(formData, "notes"),
     tags: (formData.get("tags") as string | null)
       ?.split(",")
       .map((s) => s.trim())

@@ -136,6 +136,11 @@ export function PromptForm({
         </div>
 
         <div className="space-y-2">
+          <Label htmlFor="subcategory">Subcategory</Label>
+          <Input id="subcategory" name="subcategory" defaultValue={defaultValues?.subcategory} />
+        </div>
+
+        <div className="space-y-2">
           <Label htmlFor="useCase">Use case</Label>
           <Input id="useCase" name="useCase" defaultValue={defaultValues?.useCase} />
         </div>
