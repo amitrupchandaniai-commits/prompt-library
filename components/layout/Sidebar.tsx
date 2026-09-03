@@ -21,6 +21,7 @@ import {
   BarChart3,
   Settings,
   Sparkle,
+  ShieldCheck,
 } from "lucide-react"
 
 type NavItem = {
@@ -74,8 +75,11 @@ function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
   )
 }
 
-export function Sidebar() {
+export function Sidebar({ isAdmin }: { isAdmin: boolean }) {
   const pathname = usePathname()
+  const items = isAdmin
+    ? [...NAV_ITEMS, { label: "Admin", href: "/admin", icon: ShieldCheck }]
+    : NAV_ITEMS
 
   return (
     <nav className="flex h-full w-60 flex-col gap-0.5 overflow-y-auto border-r bg-sidebar p-3 text-sidebar-foreground">
@@ -86,7 +90,7 @@ export function Sidebar() {
         <span className="text-[15px] font-semibold tracking-tight">Prompt Library</span>
       </div>
 
-      {NAV_ITEMS.map((item) => (
+      {items.map((item) => (
         <NavLink
           key={item.label}
           item={item}

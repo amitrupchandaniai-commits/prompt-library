@@ -9,7 +9,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const supabase = await createClient()
 
   const [{ data: profile }, { data: prompts }] = await Promise.all([
-    supabase.from("profiles").select("display_name").eq("id", user.id).single(),
+    supabase.from("profiles").select("display_name, is_admin").eq("id", user.id).single(),
     supabase
       .from("prompts")
       .select("id, title, description")
@@ -21,7 +21,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex h-svh overflow-hidden">
-      <Sidebar />
+      <Sidebar isAdmin={profile?.is_admin ?? false} />
       <div className="flex flex-1 flex-col overflow-hidden">
         <TopBar
           displayName={profile?.display_name ?? null}

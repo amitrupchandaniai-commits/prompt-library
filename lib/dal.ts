@@ -18,3 +18,17 @@ export async function requireSession() {
   }
   return user
 }
+
+export async function requireAdmin() {
+  const user = await requireSession()
+  const supabase = await createClient()
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_admin")
+    .eq("id", user.id)
+    .single()
+  if (!profile?.is_admin) {
+    redirect("/dashboard")
+  }
+  return user
+}
