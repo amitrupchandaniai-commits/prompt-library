@@ -7,6 +7,10 @@ import { buttonVariants } from "@/components/ui/button"
 import { RunScoutButton } from "@/components/scout/RunScoutButton"
 import { DEFAULT_SCOUT_CONFIG } from "@/lib/scout/pipeline"
 
+// Governs the "Run now" Server Action too (Next.js ties Server Action duration
+// to the route it's invoked from, not the "use server" file that defines it).
+export const maxDuration = 60
+
 const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
   completed: "default",
   partial: "secondary",

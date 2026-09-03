@@ -9,10 +9,9 @@ import { slugify } from "@/lib/slugify"
 import { detectVariables } from "@/lib/variables"
 import { embedPrompt, embeddableContent } from "@/lib/ai/embed-prompt"
 
-// Trigger.dev will own real scheduled runs (Phase 4 fast-follow); this manual
-// path deliberately stays small (DEFAULT_SCOUT_CONFIG) so it reliably completes
-// within a single serverless request.
-export const maxDuration = 60
+// Note: maxDuration can't be exported from a "use server" file (only async
+// functions are allowed there) — it's set on app/(app)/prompt-scout/page.tsx
+// instead, which is what actually governs a Server Action invoked from it.
 
 export async function startScoutRun(): Promise<{ runId: string }> {
   const user = await requireSession()
