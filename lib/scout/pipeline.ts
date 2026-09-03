@@ -15,8 +15,13 @@ export type ScoutConfig = {
 }
 
 export const DEFAULT_SCOUT_CONFIG: ScoutConfig = {
-  maxSources: 3,
-  maxItemsPerSource: 5,
+  // Kept deliberately small: a real run (3 sources x 5 items, each item
+  // potentially costing an RSS fetch + an LLM analyze call + an embedding call)
+  // exceeded Vercel's function time limit on a live test and got killed by the
+  // platform mid-run, which the code's own error handling can't catch or
+  // recover from. Raise these once timing headroom is confirmed.
+  maxSources: 2,
+  maxItemsPerSource: 2,
   minQualityScore: 60,
 }
 
@@ -289,6 +294,27 @@ export async function runPromptScout(userId: string, config: ScoutConfig = DEFAU
       }
 
       await supabase.from("sources").update({ last_scanned_at: new Date().toISOString() }).eq("id", source.id)
+
+      // Write progress after every source, not just at the very end: if the
+      // platform kills this invocation for running too long, that's a hard
+      // kill our own try/catch can't intercept — leaving the row accurately
+      // "partial" instead of stuck at "running" depends on this running
+      // incrementally, not just once at the finish line.
+      await supabase
+        .from("research_runs")
+        .update({
+          status: "partial",
+          sources_scanned: sourcesScanned,
+          items_discovered: itemsDiscovered,
+          items_analyzed: itemsAnalyzed,
+          items_rejected: itemsRejected,
+          duplicates_found: duplicatesFound,
+          pending_review_count: pendingReviewCount,
+          input_tokens: totalInputTokens,
+          output_tokens: totalOutputTokens,
+          ai_cost_usd: totalCost,
+        })
+        .eq("id", run.id)
     }
 
     await supabase
