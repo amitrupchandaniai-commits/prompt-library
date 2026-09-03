@@ -2,24 +2,35 @@ import { requireSession } from "@/lib/dal"
 import { createClient } from "@/lib/supabase/server"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CandidateReviewCard } from "@/components/scout/CandidateReviewCard"
+import { SyncFromSheetsButton } from "@/components/scout/SyncFromSheetsButton"
 
 export default async function ScoutQueuePage() {
-  await requireSession()
+  const user = await requireSession()
   const supabase = await createClient()
 
-  const { data: candidates } = await supabase
-    .from("research_candidates")
-    .select("*, categories(name)")
-    .eq("review_status", "pending")
-    .order("quality_score", { ascending: false, nullsFirst: false })
+  const [{ data: candidates }, { data: googleIntegration }] = await Promise.all([
+    supabase
+      .from("research_candidates")
+      .select("*, categories(name)")
+      .eq("review_status", "pending")
+      .order("quality_score", { ascending: false, nullsFirst: false }),
+    supabase
+      .from("google_integrations")
+      .select("sheets_review_sync_enabled")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+  ])
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Review queue</h1>
-        <p className="mt-1 text-muted-foreground">
-          Every candidate lands here regardless of score — nothing publishes automatically.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Review queue</h1>
+          <p className="mt-1 text-muted-foreground">
+            Every candidate lands here regardless of score — nothing publishes automatically.
+          </p>
+        </div>
+        {googleIntegration?.sheets_review_sync_enabled && <SyncFromSheetsButton />}
       </div>
 
       {(candidates ?? []).length === 0 ? (

@@ -7,6 +7,7 @@ import { fetchFeedItems } from "./rss"
 import { hashContent } from "./content-hash"
 import { checkForInjection } from "./security-filter"
 import { CandidateAnalysisSchema, SCOUT_SYSTEM_PROMPT } from "./analyze"
+import { syncRunToGoogle } from "@/lib/google/sync"
 
 export type ScoutConfig = {
   maxSources: number
@@ -343,6 +344,15 @@ export async function runPromptScout(
         errors,
       })
       .eq("id", run.id)
+
+    // Best-effort: Sheets/Drive sync must never fail the parent run
+    // (docs/GOOGLE_INTEGRATION.md §6). syncRunToGoogle records
+    // sheets_sync_status/drive_report_status and errors internally.
+    try {
+      await syncRunToGoogle(supabase, userId, run.id)
+    } catch (err) {
+      console.error("syncRunToGoogle: unexpected error", err)
+    }
 
     return { runId: run.id }
   } catch (err) {

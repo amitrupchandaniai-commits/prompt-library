@@ -115,6 +115,9 @@ export default async function PromptScoutPage() {
             >
               <div className="flex items-center gap-2">
                 <Badge variant={STATUS_VARIANT[run.status] ?? "outline"}>{run.status}</Badge>
+                {(run.sheets_sync_status === "failed" || run.drive_report_status === "failed") && (
+                  <Badge variant="destructive">Google sync failed</Badge>
+                )}
                 <span className="text-muted-foreground">
                   {new Date(run.started_at).toLocaleString()}
                 </span>

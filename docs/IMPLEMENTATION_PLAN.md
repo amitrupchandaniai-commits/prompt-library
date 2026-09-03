@@ -19,7 +19,7 @@ Seven phases, per the master spec (§67). Each phase has explicit entry/exit cri
 
 **Explicitly not built**: AI Builder/Improver/Tester, semantic search, Prompt Scout, Google Sheets/Drive, cost tracking, admin category management, multi-user teams. Nav entries for these exist but are disabled/"Coming soon" — not fake-functional.
 
-## Phase 2 — AI-Assisted Authoring
+## Phase 2 — AI-Assisted Authoring ✅
 
 **Entry**: Phase 1 exit criteria met, AI provider keys (Anthropic/OpenAI) added to env.
 **Scope**: `AIProvider` abstraction, Prompt Builder (role/objective/context/... → structured prompt), Prompt Improver (score + rewrite, never overwrites original), full versioning UI (compare/restore), `ai_usage_log` table + logging wired into every call from day one (see `AI_COST_CONTROL.md`).
