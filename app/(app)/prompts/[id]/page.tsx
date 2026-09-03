@@ -90,10 +90,13 @@ export default async function PromptDetailPage({
               c.collection_prompts?.map((cp: { prompt_id: string }) => cp.prompt_id) ?? [],
           }))}
         />
-        <Button variant="outline" disabled title="Ships in Phase 2">
+        <Link
+          href={`/prompt-improver?promptId=${prompt.id}`}
+          className={buttonVariants({ variant: "outline" })}
+        >
           Improve with AI
-        </Button>
-        <Button variant="outline" disabled title="Ships in Phase 2">
+        </Link>
+        <Button variant="outline" disabled title="Ships in a later phase">
           Create variation
         </Button>
         <Button variant="outline" disabled title="Ships in Phase 6">
