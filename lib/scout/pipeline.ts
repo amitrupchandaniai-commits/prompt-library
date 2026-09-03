@@ -23,7 +23,11 @@ export const DEFAULT_SCOUT_CONFIG: ScoutConfig = {
   // recover from. Raise these once timing headroom is confirmed.
   maxSources: 2,
   maxItemsPerSource: 2,
-  minQualityScore: 60,
+  // Below this, a candidate is auto-inserted as review_status "rejected" and
+  // never reaches the review queue at all — lowered from 60 so more
+  // borderline candidates surface for a human decision instead of being
+  // silently discarded before anyone sees them.
+  minQualityScore: 50,
 }
 
 const DUPLICATE_REJECT_THRESHOLD = 0.95
