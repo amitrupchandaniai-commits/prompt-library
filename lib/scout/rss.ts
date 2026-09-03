@@ -1,4 +1,3 @@
-import "server-only"
 import Parser from "rss-parser"
 
 export type FeedItem = {

@@ -1,5 +1,5 @@
-import "server-only"
-import { createClient } from "@/lib/supabase/server"
+import type { SupabaseClient } from "@supabase/supabase-js"
+import type { Database } from "@/types/database.types"
 import { getAIProvider } from "@/lib/ai"
 import { logAiUsage } from "@/lib/ai/usage"
 import { generateEmbedding } from "@/lib/ai/embeddings"
@@ -43,9 +43,17 @@ type CandidateAnalysisScores = {
   practicalValue: number
 }
 
-export async function runPromptScout(userId: string, config: ScoutConfig = DEFAULT_SCOUT_CONFIG) {
-  const supabase = await createClient()
-
+/**
+ * Takes an injected Supabase client so this can run from two different contexts:
+ * a Next.js Server Action (session-scoped client, called via the manual "Run now"
+ * button) or a Trigger.dev scheduled job (service-role client — there's no session
+ * to build a client from in a headless job).
+ */
+export async function runPromptScout(
+  supabase: SupabaseClient<Database>,
+  userId: string,
+  config: ScoutConfig = DEFAULT_SCOUT_CONFIG
+) {
   const { data: run, error: runError } = await supabase
     .from("research_runs")
     .insert({ status: "running", triggered_by: userId })
@@ -149,7 +157,7 @@ export async function runPromptScout(userId: string, config: ScoutConfig = DEFAU
           analysis = result.data
           totalInputTokens += result.inputTokens
           totalOutputTokens += result.outputTokens
-          totalCost += await logAiUsage({
+          totalCost += await logAiUsage(supabase, {
             userId,
             feature: "prompt_scout",
             provider: result.provider,
@@ -221,6 +229,7 @@ export async function runPromptScout(userId: string, config: ScoutConfig = DEFAU
           const embedding = await generateEmbedding(`${analysis.title}\n\n${analysis.description}\n\n${analysis.promptText}`)
           const { data: matches } = await supabase.rpc("match_prompts", {
             query_embedding: embedding,
+            match_user_id: userId,
             match_count: 1,
           })
           const best = matches?.[0]

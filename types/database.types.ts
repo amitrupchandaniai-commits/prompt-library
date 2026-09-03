@@ -779,6 +779,7 @@ export type Database = {
         Args: {
           match_category_id?: string
           match_count?: number
+          match_user_id: string
           query_embedding: string
         }
         Returns: {

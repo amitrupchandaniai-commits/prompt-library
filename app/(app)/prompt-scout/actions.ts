@@ -15,7 +15,8 @@ import { embedPrompt, embeddableContent } from "@/lib/ai/embed-prompt"
 
 export async function startScoutRun(): Promise<{ runId: string }> {
   const user = await requireSession()
-  const result = await runPromptScout(user.id, DEFAULT_SCOUT_CONFIG)
+  const supabase = await createClient()
+  const result = await runPromptScout(supabase, user.id, DEFAULT_SCOUT_CONFIG)
   revalidatePath("/prompt-scout")
   revalidatePath("/prompt-scout/queue")
   return result

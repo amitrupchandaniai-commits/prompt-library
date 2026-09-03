@@ -58,6 +58,7 @@ export async function buildPrompt(
     .join("\n\n")
 
   const provider = getAIProvider("anthropic")
+  const supabase = await createClient()
 
   try {
     const result = await provider.generateStructured({
@@ -68,7 +69,7 @@ export async function buildPrompt(
       maxTokens: 2048,
     })
 
-    await logAiUsage({
+    await logAiUsage(supabase, {
       userId: user.id,
       feature: "prompt_builder",
       provider: result.provider,
@@ -80,7 +81,7 @@ export async function buildPrompt(
 
     return { result: result.data }
   } catch (err) {
-    await logAiUsage({
+    await logAiUsage(supabase, {
       userId: user.id,
       feature: "prompt_builder",
       provider: provider.name,

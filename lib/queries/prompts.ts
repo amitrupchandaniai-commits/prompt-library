@@ -69,6 +69,7 @@ export async function searchPromptsSemantic(opts: {
 
   const { data: matches, error: matchError } = await supabase.rpc("match_prompts", {
     query_embedding: queryEmbedding,
+    match_user_id: opts.userId,
     match_category_id: opts.categoryId || undefined,
     match_count: opts.limit ?? 50,
   })

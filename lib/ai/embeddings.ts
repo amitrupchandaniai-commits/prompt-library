@@ -1,4 +1,3 @@
-import "server-only"
 import OpenAI from "openai"
 
 const EMBEDDING_MODEL = "text-embedding-3-small"

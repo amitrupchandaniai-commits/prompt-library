@@ -1,4 +1,3 @@
-import "server-only"
 import { AnthropicProvider } from "./anthropic-provider"
 import { OpenAIProvider } from "./openai-provider"
 import type { AIProvider, AIProviderName } from "./types"

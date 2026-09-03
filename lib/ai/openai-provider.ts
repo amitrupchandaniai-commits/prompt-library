@@ -1,4 +1,3 @@
-import "server-only"
 import OpenAI from "openai"
 import { zodResponseFormat } from "openai/helpers/zod"
 import type { AIProvider, GenerateStructuredParams, GenerateStructuredResult } from "./types"
