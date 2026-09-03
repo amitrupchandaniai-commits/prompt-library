@@ -111,15 +111,20 @@ RLS: owner of the referenced prompt (via `EXISTS`).
 
 RLS: `SELECT` restricted to the owning user; `INSERT` only via service role (server actions write audit rows explicitly — never client-writable) so a compromised client can't forge or erase its own trail.
 
-## Future Tables (documented now, NOT created in Phase 1 migrations)
+## Prompt Scout Tables (Phase 4, active)
 
-These arrive with Phase 4 (Prompt Scout) and Phase 6 (cost tracking). Listed here so the Phase 1 schema doesn't collide with them later.
+Single-tenant/admin data — RLS grants full access to any authenticated user of this deployment rather than scoping by `user_id`, since there's no per-user ownership concept for a shared research pipeline (documented simplification, see `docs/AGENT_ARCHITECTURE.md`).
 
-- **`sources`** — id, name, url, type, trust_score, enabled, last_scanned_at, scan_frequency, notes.
-- **`research_runs`** — id (Run ID), started_at, ended_at, status, sources_scanned, items_discovered, items_analyzed, items_rejected, duplicates_found, published_count, pending_review_count, token_usage, ai_cost_usd, sheets_sync_status, drive_report_status, errors (jsonb).
-- **`research_candidates`** — id (Candidate ID), run_id, title, description, prompt_text, category guess, quality/clarity/specificity/... scores, duplicate_probability, security_status, source provenance fields (mirrors `prompts.source_*`), ai_optimized boolean, review_status (`pending|approved|rejected|merged`), reviewer_notes, supabase_prompt_id (set on approval), google_sheet_row_id, created_at.
-- **`processed_content`** — source_url, content_hash, publication_date, processed_at, run_id — dedup memory so a source is never reprocessed (spec §40).
-- **`ai_usage_log`** — id, feature, provider, model, user_id, research_run_id, input_tokens, output_tokens, latency_ms, cost_usd, created_at — powers `AI_COST_CONTROL.md`'s budget checks and the cost dashboards (spec §43).
+- **`sources`** — id, name, url, type (`rss|api|web` — only `rss` is actually fetched so far), trust_score, enabled, last_scanned_at, scan_frequency, notes.
+- **`research_runs`** — id (Run ID), status (`running|completed|partial|failed`), started_at, ended_at, sources_scanned, items_discovered, items_analyzed, items_rejected, duplicates_found, published_count, pending_review_count, input_tokens, output_tokens, ai_cost_usd, errors (jsonb), triggered_by.
+- **`research_candidates`** — id (Candidate ID), run_id, title, description, prompt_text, category_id, use_case, tags, quality/clarity/specificity/context/structure/reusability/originality/practical_value scores, duplicate_probability, duplicate_of_prompt_id, security_status (`passed|flagged|rejected`), security_notes, is_ai_optimized, source provenance fields (source_id/url/name/author/publication_date — always derived from the real feed item, never LLM-invented), content_hash, review_status (`pending|approved|rejected|merged` — `merged` reserved, no UI yet), reviewer_notes, recommended_action, supabase_prompt_id (set on approval).
+- **`processed_content`** — source_url, content_hash, publication_date, processed_at, run_id — dedup memory so the same item is never analyzed twice across runs (spec §40); unique on `(source_url, content_hash)`.
+
+Not yet added: `google_sheet_row_id` / `drive_report_status` columns (Phase 5).
+
+## `ai_usage_log` (Phase 2, active)
+
+id, user_id (nullable — system/agent calls), feature (`prompt_builder|prompt_improver|prompt_scout|...`), provider, model, research_run_id (nullable, links a Prompt Scout LLM call back to its run), input_tokens, output_tokens, latency_ms, cost_usd, error (nullable), created_at. RLS: owner (`user_id`) can select/insert own rows — see `docs/AI_COST_CONTROL.md`.
 
 ## Migration File Map
 
@@ -135,3 +140,5 @@ These arrive with Phase 4 (Prompt Scout) and Phase 6 (cost tracking). Listed her
 | `0008_ai_usage_log.sql` | `ai_usage_log` table (Phase 2) |
 | `0009_version_restore.sql` | adds `restored` to `prompt_versions.change_source` |
 | `0010_semantic_search.sql` | `prompts.embedding` column + `match_prompts()` similarity search function (Phase 3) |
+| `0011_prompt_scout.sql` | `sources`, `research_runs`, `research_candidates`, `processed_content` (Phase 4) |
+| `0012_seed_sources.sql` | seeds the 5 verified starter sources |

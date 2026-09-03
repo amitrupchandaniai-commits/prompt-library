@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { FileText, CalendarPlus, Star, FolderHeart, Bot, Plus } from "lucide-react"
 import { requireSession } from "@/lib/dal"
+import { createClient } from "@/lib/supabase/server"
 import {
   getDashboardStats,
   listRecentPrompts,
@@ -12,10 +13,18 @@ import { buttonVariants } from "@/components/ui/button"
 
 export default async function DashboardPage() {
   const user = await requireSession()
-  const [stats, recent, topRated] = await Promise.all([
+  const supabase = await createClient()
+  const [stats, recent, topRated, { data: lastRun }, { count: pendingCount }] = await Promise.all([
     getDashboardStats(user.id),
     listRecentPrompts(user.id),
     listTopRatedPrompts(user.id),
+    supabase
+      .from("research_runs")
+      .select("started_at, status, pending_review_count")
+      .order("started_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase.from("research_candidates").select("id", { count: "exact", head: true }).eq("review_status", "pending"),
   ])
 
   return (
@@ -97,18 +106,32 @@ export default async function DashboardPage() {
       </div>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-base">
             <Bot className="size-4 text-muted-foreground" />
             Prompt Scout
           </CardTitle>
+          <Link href="/prompt-scout" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            Open
+          </Link>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Prompt Scout&apos;s autonomous weekly research pipeline is designed in{" "}
-            <code className="rounded bg-muted px-1 py-0.5 text-xs">docs/AGENT_ARCHITECTURE.md</code>{" "}
-            and ships in Phase 4. It isn&apos;t running yet — there&apos;s nothing to report.
-          </p>
+          {lastRun ? (
+            <p className="text-sm text-muted-foreground">
+              Last run {new Date(lastRun.started_at).toLocaleString()} ({lastRun.status}).{" "}
+              {pendingCount ? (
+                <Link href="/prompt-scout/queue" className="underline underline-offset-4">
+                  {pendingCount} candidate{pendingCount === 1 ? "" : "s"} waiting for review
+                </Link>
+              ) : (
+                "Nothing pending review."
+              )}
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Hasn&apos;t run yet — runs manually for now (weekly scheduling is a fast-follow).
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>

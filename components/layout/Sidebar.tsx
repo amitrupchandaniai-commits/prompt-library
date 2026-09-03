@@ -35,6 +35,8 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Prompt Library", href: "/prompts", icon: Library },
   { label: "Prompt Builder", href: "/prompt-builder", icon: Wand2 },
   { label: "Prompt Improver", href: "/prompt-improver", icon: Sparkles },
+  { label: "Prompt Scout", href: "/prompt-scout", icon: Bot },
+  { label: "Sources", href: "/sources", icon: Radar },
   { label: "Collections", href: "/collections", icon: FolderHeart },
   { label: "Favorites", href: "/favorites", icon: Star },
   { label: "Recently Added", href: "/prompts?sort=recent", icon: Clock },
@@ -44,9 +46,7 @@ const NAV_ITEMS: NavItem[] = [
 
 const COMING_SOON_ITEMS: NavItem[] = [
   { label: "Discover", href: "/discover", icon: Compass, comingSoon: true },
-  { label: "Prompt Scout", href: "/prompt-scout", icon: Bot, comingSoon: true },
   { label: "Prompt Tester", href: "/prompt-tester", icon: FlaskConical, comingSoon: true },
-  { label: "Sources", href: "/sources", icon: Radar, comingSoon: true },
   { label: "Google Sheets", href: "/integrations/sheets", icon: Sheet, comingSoon: true },
   { label: "Google Drive", href: "/integrations/drive", icon: HardDrive, comingSoon: true },
   { label: "Analytics", href: "/analytics", icon: BarChart3, comingSoon: true },

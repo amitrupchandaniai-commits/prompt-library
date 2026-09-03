@@ -203,6 +203,41 @@ export type Database = {
           },
         ]
       }
+      processed_content: {
+        Row: {
+          content_hash: string
+          id: string
+          processed_at: string
+          publication_date: string | null
+          run_id: string | null
+          source_url: string
+        }
+        Insert: {
+          content_hash: string
+          id?: string
+          processed_at?: string
+          publication_date?: string | null
+          run_id?: string | null
+          source_url: string
+        }
+        Update: {
+          content_hash?: string
+          id?: string
+          processed_at?: string
+          publication_date?: string | null
+          run_id?: string | null
+          source_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "processed_content_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "research_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -470,6 +505,249 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      research_candidates: {
+        Row: {
+          category_id: string | null
+          clarity_score: number | null
+          content_hash: string
+          context_score: number | null
+          created_at: string
+          description: string | null
+          duplicate_of_prompt_id: string | null
+          duplicate_probability: number | null
+          id: string
+          is_ai_optimized: boolean
+          original_excerpt: string | null
+          originality_score: number | null
+          practical_value_score: number | null
+          prompt_text: string
+          quality_score: number | null
+          recommended_action: string | null
+          reusability_score: number | null
+          review_status: string
+          reviewer_notes: string | null
+          run_id: string
+          security_notes: string | null
+          security_status: string
+          source_author: string | null
+          source_id: string | null
+          source_name: string | null
+          source_publication_date: string | null
+          source_url: string
+          specificity_score: number | null
+          structure_score: number | null
+          supabase_prompt_id: string | null
+          tags: string[]
+          title: string
+          use_case: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          clarity_score?: number | null
+          content_hash: string
+          context_score?: number | null
+          created_at?: string
+          description?: string | null
+          duplicate_of_prompt_id?: string | null
+          duplicate_probability?: number | null
+          id?: string
+          is_ai_optimized?: boolean
+          original_excerpt?: string | null
+          originality_score?: number | null
+          practical_value_score?: number | null
+          prompt_text: string
+          quality_score?: number | null
+          recommended_action?: string | null
+          reusability_score?: number | null
+          review_status?: string
+          reviewer_notes?: string | null
+          run_id: string
+          security_notes?: string | null
+          security_status?: string
+          source_author?: string | null
+          source_id?: string | null
+          source_name?: string | null
+          source_publication_date?: string | null
+          source_url: string
+          specificity_score?: number | null
+          structure_score?: number | null
+          supabase_prompt_id?: string | null
+          tags?: string[]
+          title: string
+          use_case?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          clarity_score?: number | null
+          content_hash?: string
+          context_score?: number | null
+          created_at?: string
+          description?: string | null
+          duplicate_of_prompt_id?: string | null
+          duplicate_probability?: number | null
+          id?: string
+          is_ai_optimized?: boolean
+          original_excerpt?: string | null
+          originality_score?: number | null
+          practical_value_score?: number | null
+          prompt_text?: string
+          quality_score?: number | null
+          recommended_action?: string | null
+          reusability_score?: number | null
+          review_status?: string
+          reviewer_notes?: string | null
+          run_id?: string
+          security_notes?: string | null
+          security_status?: string
+          source_author?: string | null
+          source_id?: string | null
+          source_name?: string | null
+          source_publication_date?: string | null
+          source_url?: string
+          specificity_score?: number | null
+          structure_score?: number | null
+          supabase_prompt_id?: string | null
+          tags?: string[]
+          title?: string
+          use_case?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "research_candidates_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "research_candidates_duplicate_of_prompt_id_fkey"
+            columns: ["duplicate_of_prompt_id"]
+            isOneToOne: false
+            referencedRelation: "prompts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "research_candidates_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "research_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "research_candidates_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "research_candidates_supabase_prompt_id_fkey"
+            columns: ["supabase_prompt_id"]
+            isOneToOne: false
+            referencedRelation: "prompts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      research_runs: {
+        Row: {
+          ai_cost_usd: number
+          created_at: string
+          duplicates_found: number
+          ended_at: string | null
+          errors: Json
+          id: string
+          input_tokens: number
+          items_analyzed: number
+          items_discovered: number
+          items_rejected: number
+          output_tokens: number
+          pending_review_count: number
+          published_count: number
+          sources_scanned: number
+          started_at: string
+          status: string
+          triggered_by: string | null
+        }
+        Insert: {
+          ai_cost_usd?: number
+          created_at?: string
+          duplicates_found?: number
+          ended_at?: string | null
+          errors?: Json
+          id?: string
+          input_tokens?: number
+          items_analyzed?: number
+          items_discovered?: number
+          items_rejected?: number
+          output_tokens?: number
+          pending_review_count?: number
+          published_count?: number
+          sources_scanned?: number
+          started_at?: string
+          status?: string
+          triggered_by?: string | null
+        }
+        Update: {
+          ai_cost_usd?: number
+          created_at?: string
+          duplicates_found?: number
+          ended_at?: string | null
+          errors?: Json
+          id?: string
+          input_tokens?: number
+          items_analyzed?: number
+          items_discovered?: number
+          items_rejected?: number
+          output_tokens?: number
+          pending_review_count?: number
+          published_count?: number
+          sources_scanned?: number
+          started_at?: string
+          status?: string
+          triggered_by?: string | null
+        }
+        Relationships: []
+      }
+      sources: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          last_scanned_at: string | null
+          name: string
+          notes: string | null
+          scan_frequency: string
+          trust_score: number
+          type: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_scanned_at?: string | null
+          name: string
+          notes?: string | null
+          scan_frequency?: string
+          trust_score?: number
+          type?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_scanned_at?: string | null
+          name?: string
+          notes?: string | null
+          scan_frequency?: string
+          trust_score?: number
+          type?: string
+          url?: string
+        }
+        Relationships: []
       }
       tags: {
         Row: {
