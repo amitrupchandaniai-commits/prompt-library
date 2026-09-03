@@ -7,6 +7,7 @@ import { getAIProvider } from "@/lib/ai"
 import { logAiUsage } from "@/lib/ai/usage"
 import { slugify } from "@/lib/slugify"
 import { detectVariables } from "@/lib/variables"
+import { embedPrompt, embeddableContent } from "@/lib/ai/embed-prompt"
 import {
   ImproverInputSchema,
   ImproverOutputSchema,
@@ -136,6 +137,8 @@ export async function applyImprovementToPrompt(
     created_by: user.id,
   })
 
+  await embedPrompt(promptId, embeddableContent({ title: existing.title, promptText: improvedPrompt }))
+
   revalidatePath(`/prompts/${promptId}`)
   revalidatePath("/prompts")
   return { id: promptId }
@@ -193,6 +196,8 @@ export async function saveImprovedAsNewPrompt(
     change_source: "ai_improved",
     created_by: user.id,
   })
+
+  await embedPrompt(created.id, embeddableContent({ title, promptText: improvedPrompt }))
 
   return { id: created.id }
 }

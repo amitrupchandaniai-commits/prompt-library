@@ -8,6 +8,7 @@ import { logAuditEvent } from "@/lib/audit"
 import { PromptSchema } from "@/lib/validations/prompt"
 import { slugify } from "@/lib/slugify"
 import { detectVariables } from "@/lib/variables"
+import { embedPrompt, embeddableContent } from "@/lib/ai/embed-prompt"
 
 export type PromptFormState = {
   error?: string
@@ -172,6 +173,11 @@ export async function createPrompt(
     created_by: user.id,
   })
 
+  await embedPrompt(
+    created.id,
+    embeddableContent({ title: data.title, description: data.description, promptText: data.promptText })
+  )
+
   await logAuditEvent({
     userId: user.id,
     action: "prompt.created",
@@ -258,6 +264,11 @@ export async function updatePrompt(
       change_source: "user_edit",
       created_by: user.id,
     })
+
+    await embedPrompt(
+      promptId,
+      embeddableContent({ title: data.title, description: data.description, promptText: data.promptText })
+    )
   }
 
   await logAuditEvent({
@@ -408,6 +419,11 @@ export async function restoreVersion(promptId: string, versionId: string) {
     change_source: "restored",
     created_by: user.id,
   })
+
+  await embedPrompt(
+    promptId,
+    embeddableContent({ title: version.title, promptText: version.prompt_text })
+  )
 
   await logAuditEvent({
     userId: user.id,

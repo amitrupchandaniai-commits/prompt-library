@@ -310,6 +310,7 @@ export type Database = {
           description: string | null
           difficulty: string | null
           discovered_at: string | null
+          embedding: string | null
           example_input: string | null
           example_output: string | null
           favorite_count: number
@@ -362,6 +363,7 @@ export type Database = {
           description?: string | null
           difficulty?: string | null
           discovered_at?: string | null
+          embedding?: string | null
           example_input?: string | null
           example_output?: string | null
           favorite_count?: number
@@ -414,6 +416,7 @@ export type Database = {
           description?: string | null
           difficulty?: string | null
           discovered_at?: string | null
+          embedding?: string | null
           example_input?: string | null
           example_output?: string | null
           favorite_count?: number
@@ -494,7 +497,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      match_prompts: {
+        Args: {
+          match_category_id?: string
+          match_count?: number
+          query_embedding: string
+        }
+        Returns: {
+          id: string
+          similarity: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

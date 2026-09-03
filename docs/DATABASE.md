@@ -54,6 +54,8 @@ tested_models (text[]), source_id, source_url, source_name, source_author, sourc
 RLS: owner only for all operations.
 Indexes: `(user_id)`, `(category_id)`, unique `(user_id, slug)`, `(created_at)`, GIN trigram indexes on `title` and `prompt_text` for `ILIKE` search.
 
+**`embedding vector(1536)`** (Phase 3, active) — OpenAI `text-embedding-3-small` embedding of `title + description + prompt_text`, regenerated on every save that changes the text. Nullable: prompts saved before Phase 3, or saved without `OPENAI_API_KEY` configured, have no embedding and are simply excluded from semantic search results until backfilled (`npm run backfill-embeddings`) or re-saved. No ANN index (ivfflat/hnsw) yet — a linear scan is fine at personal-library scale; add one if the library grows into the thousands of rows. See `match_prompts()` in migration `0010_semantic_search.sql`.
+
 ### `prompt_tags`
 Join table, `(prompt_id, tag_id)` PK. RLS: owner of the referenced prompt (checked via `EXISTS` subquery).
 
@@ -129,3 +131,7 @@ These arrive with Phase 4 (Prompt Scout) and Phase 6 (cost tracking). Listed her
 | `0004_versioning_audit.sql` | `prompt_versions`, `audit_log` |
 | `0005_rls_policies.sql` | RLS enable + policies for every table above |
 | `0006_seed_categories.sql` | inserts the fixed category list from spec §8 |
+| `0007_advisor_fixes.sql` | RLS/function performance and security fixes flagged by the Supabase advisor |
+| `0008_ai_usage_log.sql` | `ai_usage_log` table (Phase 2) |
+| `0009_version_restore.sql` | adds `restored` to `prompt_versions.change_source` |
+| `0010_semantic_search.sql` | `prompts.embedding` column + `match_prompts()` similarity search function (Phase 3) |

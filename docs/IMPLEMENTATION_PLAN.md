@@ -25,11 +25,13 @@ Seven phases, per the master spec (§67). Each phase has explicit entry/exit cri
 **Scope**: `AIProvider` abstraction, Prompt Builder (role/objective/context/... → structured prompt), Prompt Improver (score + rewrite, never overwrites original), full versioning UI (compare/restore), `ai_usage_log` table + logging wired into every call from day one (see `AI_COST_CONTROL.md`).
 **Exit**: User can build a prompt from scratch via guided questions, improve any existing prompt with visible before/after + scores, and every AI call is logged with cost.
 
-## Phase 3 — Semantic Search
+## Phase 3 — Semantic Search ✅
 
 **Entry**: Phase 2 exit criteria met.
-**Scope**: `embedding vector(1536)` column on `prompts`, embedding generation on create/update, pgvector similarity search, natural-language search endpoint, search filters (category/industry/type/model/quality/source/date/verified/AI-discovered/favorites — the ones that exist by this phase).
-**Exit**: A natural-language query like "prompt for deciding whether to launch a perfume business in UAE" returns semantically relevant results, not just keyword matches.
+**Scope**: `embedding vector(1536)` column on `prompts`, embedding generation on create/update (and on AI-build/improve/restore), pgvector cosine-similarity search (`match_prompts()`), natural-language search wired into the main Prompt Library search box, category filter still applies.
+**Exit**: A natural-language query returns semantically relevant results, not just keyword matches — met, with a graceful fallback to keyword search when `OPENAI_API_KEY` isn't configured or the embedding call fails.
+
+**Not built**: the wider search-filter set (industry/type/model/quality/source/date/verified/AI-discovered) — most of those fields don't have real values yet since Prompt Scout (Phase 4) is what populates them; revisit once that data exists. No ANN index yet (documented in `docs/DATABASE.md`, fine at current scale).
 
 ## Phase 4 — Prompt Scout
 

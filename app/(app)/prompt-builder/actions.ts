@@ -6,6 +6,7 @@ import { getAIProvider } from "@/lib/ai"
 import { logAiUsage } from "@/lib/ai/usage"
 import { slugify } from "@/lib/slugify"
 import { detectVariables } from "@/lib/variables"
+import { embedPrompt, embeddableContent } from "@/lib/ai/embed-prompt"
 import {
   PromptBuilderInputSchema,
   PromptBuilderOutputSchema,
@@ -138,6 +139,15 @@ export async function saveBuiltPrompt(output: PromptBuilderOutput): Promise<{ id
     change_source: "original",
     created_by: user.id,
   })
+
+  await embedPrompt(
+    created.id,
+    embeddableContent({
+      title: output.title,
+      description: output.description,
+      promptText: output.promptText,
+    })
+  )
 
   return { id: created.id }
 }

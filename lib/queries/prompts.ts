@@ -1,7 +1,11 @@
 import "server-only"
 import { createClient } from "@/lib/supabase/server"
+import { generateEmbedding } from "@/lib/ai/embeddings"
 
 export type PromptListItem = Awaited<ReturnType<typeof listPrompts>>["prompts"][number]
+
+const PROMPT_LIST_SELECT =
+  "id, title, description, slug, prompt_text, category_id, is_archived, user_rating, is_favorite:favorites(user_id), created_at, updated_at, categories(name, slug), prompt_tags(tags(id, name))"
 
 export async function listPrompts(opts: {
   userId: string
@@ -14,10 +18,7 @@ export async function listPrompts(opts: {
 
   let query = supabase
     .from("prompts")
-    .select(
-      "id, title, description, slug, prompt_text, category_id, is_archived, user_rating, is_favorite:favorites(user_id), created_at, updated_at, categories(name, slug), prompt_tags(tags(id, name))",
-      { count: "exact" }
-    )
+    .select(PROMPT_LIST_SELECT, { count: "exact" })
     .eq("user_id", opts.userId)
     .order("created_at", { ascending: false })
 
@@ -47,6 +48,56 @@ export async function listPrompts(opts: {
   }
 
   return { prompts, count: count ?? 0 }
+}
+
+/**
+ * Natural-language search over the user's own prompts via pgvector cosine similarity
+ * (see match_prompts in supabase/migrations/0010_semantic_search.sql). Throws if
+ * OPENAI_API_KEY isn't configured or the embedding call fails — callers should catch
+ * and fall back to listPrompts()'s keyword search rather than surface an error for
+ * what's meant to be a graceful degradation.
+ */
+export async function searchPromptsSemantic(opts: {
+  userId: string
+  query: string
+  categoryId?: string
+  favoritesOnly?: boolean
+  limit?: number
+}) {
+  const supabase = await createClient()
+  const queryEmbedding = await generateEmbedding(opts.query)
+
+  const { data: matches, error: matchError } = await supabase.rpc("match_prompts", {
+    query_embedding: queryEmbedding,
+    match_category_id: opts.categoryId || undefined,
+    match_count: opts.limit ?? 50,
+  })
+
+  if (matchError) throw matchError
+  if (!matches || matches.length === 0) return { prompts: [], count: 0 }
+
+  const similarityById = new Map(matches.map((m) => [m.id, m.similarity]))
+
+  const { data, error } = await supabase
+    .from("prompts")
+    .select(PROMPT_LIST_SELECT)
+    .eq("user_id", opts.userId)
+    .in(
+      "id",
+      matches.map((m) => m.id)
+    )
+
+  if (error) throw error
+
+  let prompts = (data ?? []).sort(
+    (a, b) => (similarityById.get(b.id) ?? 0) - (similarityById.get(a.id) ?? 0)
+  )
+
+  if (opts.favoritesOnly) {
+    prompts = prompts.filter((p) => (p.is_favorite?.length ?? 0) > 0)
+  }
+
+  return { prompts, count: prompts.length }
 }
 
 export async function getPromptById(userId: string, id: string) {
