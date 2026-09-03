@@ -11,22 +11,26 @@ export default async function AdminPage() {
   // per-row RLS policy, same justification lib/audit.ts uses for its writes.
   const supabase = createServiceClient()
 
-  const [{ data: authData }, { data: prompts }, { data: scoutEvents }, { data: activity }] =
-    await Promise.all([
-      // Single page is fine at this app's scale (a small personal/friends
-      // userbase) — paginate if the userbase grows meaningfully.
-      supabase.auth.admin.listUsers({ perPage: 1000 }),
-      supabase.from("prompts").select("user_id"),
-      supabase
-        .from("audit_log")
-        .select("user_id, action")
-        .in("action", ["scout_candidate.approved", "scout_candidate.rejected"]),
-      supabase
-        .from("audit_log")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(50),
-    ])
+  const [
+    { data: authData, error: authError },
+    { data: prompts },
+    { data: scoutEvents },
+    { data: activity },
+  ] = await Promise.all([
+    // Single page is fine at this app's scale (a small personal/friends
+    // userbase) — paginate if the userbase grows meaningfully.
+    supabase.auth.admin.listUsers({ perPage: 1000 }),
+    supabase.from("prompts").select("user_id"),
+    supabase
+      .from("audit_log")
+      .select("user_id, action")
+      .in("action", ["scout_candidate.approved", "scout_candidate.rejected"]),
+    supabase.from("audit_log").select("*").order("created_at", { ascending: false }).limit(50),
+  ])
+
+  if (authError) {
+    console.error("admin.listUsers failed", authError)
+  }
 
   const authUsers: AuthUserSummary[] = (authData?.users ?? []).map((user) => ({
     id: user.id,
