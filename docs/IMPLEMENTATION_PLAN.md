@@ -33,15 +33,15 @@ Seven phases, per the master spec (§67). Each phase has explicit entry/exit cri
 
 **Not built**: the wider search-filter set (industry/type/model/quality/source/date/verified/AI-discovered) — most of those fields don't have real values yet since Prompt Scout (Phase 4) is what populates them; revisit once that data exists. No ANN index yet (documented in `docs/DATABASE.md`, fine at current scale).
 
-## Phase 4 — Prompt Scout 🟡 (pipeline + manual run done, weekly cron not yet)
+## Phase 4 — Prompt Scout ✅ (pipeline, manual run, and weekly cron all live)
 
 **Entry**: Phase 3 exit criteria met, admin has curated at least a handful of entries in `sources`.
 **Scope**: `sources`, `research_runs`, `research_candidates`, `processed_content` tables; Trigger.dev weekly cron + manual "Run Now"; full pipeline from `AGENT_ARCHITECTURE.md`; candidate review queue UI; security/injection defenses live (not just documented).
 **Exit**: A real weekly run discovers, scores, and queues candidates; admin can approve/reject/merge from the in-app queue; approved candidates become real `prompts` rows with provenance preserved.
 
-**Built**: the full discover→fetch→dedupe(processed_content)→security-filter→analyze→score→dedupe(pgvector)→classify→queue pipeline, triggered manually from `/prompt-scout` ("Run now"), deliberately scope-limited (3 sources × 5 items, `lib/scout/pipeline.ts`'s `DEFAULT_SCOUT_CONFIG`) to reliably finish inside one serverless request. Review queue (approve/reject, no merge yet) at `/prompt-scout/queue`. Sources CRUD at `/sources`, seeded with 5 verified RSS feeds. Code-level injection pre-filter (`lib/scout/security-filter.ts`) plus a system prompt that treats fetched content as untrusted data — both live, not just documented. Manual review only; nothing auto-publishes.
+**Built**: the full discover→fetch→dedupe(processed_content)→security-filter→analyze→score→dedupe(pgvector)→classify→queue pipeline, deliberately scope-limited (2 sources × 2 items, `lib/scout/pipeline.ts`'s `DEFAULT_SCOUT_CONFIG` — reduced from an initial 3×5 after a live run got killed mid-flight by Vercel's function time limit) to reliably finish inside one invocation. Runnable two ways: manually from `/prompt-scout` ("Run now", cookie-based session client) and on a schedule via a Trigger.dev `schedules.task` (`trigger/prompt-scout.ts`, Sunday 02:00 UTC by default — configurable via `SCOUT_TIMEZONE`, using a service-role client since headless jobs have no session). `runPromptScout`/`logAiUsage` take an injected Supabase client so the same pipeline code serves both entry points; `match_prompts` takes an explicit `match_user_id` rather than relying on `auth.uid()`, which is null for a service-role client. Review queue (approve/reject, no merge yet) at `/prompt-scout/queue`. Sources CRUD at `/sources`, seeded with 5 verified RSS feeds. Code-level injection pre-filter (`lib/scout/security-filter.ts`) plus a system prompt that treats fetched content as untrusted data — both live, not just documented. Manual review only; nothing auto-publishes.
 
-**Not built**: Trigger.dev weekly cron (this was an explicit pacing decision — prove the pipeline manually first), "merge" action in the review queue, admin-configurable run limits (currently a code constant), fetching non-RSS source types (`api`/`web` sources can be registered but aren't fetched).
+**Not built**: "merge" action in the review queue, admin-configurable run limits (currently a code constant), fetching non-RSS source types (`api`/`web` sources can be registered but aren't fetched).
 
 ## Phase 5 — Google Integration
 

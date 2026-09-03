@@ -2,7 +2,7 @@
 
 A personal "second brain" for AI prompts — save, organize, search, build, and improve prompts, with an autonomous weekly research agent (**Prompt Scout**, Phase 4+) that discovers new prompts and prompting techniques from approved public sources.
 
-**Phases 1–3 are implemented.** See `docs/IMPLEMENTATION_PLAN.md` for the full 7-phase roadmap and exactly what's built vs. designed-but-not-built.
+**Phases 1–4 are implemented.** See `docs/IMPLEMENTATION_PLAN.md` for the full 7-phase roadmap and exactly what's built vs. designed-but-not-built.
 
 ## What's built
 
@@ -14,9 +14,10 @@ A personal "second brain" for AI prompts — save, organize, search, build, and 
 - **Prompt Builder** — guided form → AI-generated structured prompt (Claude)
 - **Prompt Improver** — paste any prompt → scored on 7 dimensions + AI-rewritten version, applicable to a library prompt or standalone
 - **AI cost tracking** — every AI call logged with tokens/latency/cost (`ai_usage_log`)
+- **Prompt Scout** — autonomous research agent: discover→fetch→dedupe→security-filter→analyze→score→queue pipeline over a curated `sources` registry, runnable manually (`/prompt-scout`) or on a Trigger.dev weekly schedule (`trigger/prompt-scout.ts`, Sunday 02:00 UTC by default), with an in-app review queue (`/prompt-scout/queue`) — manual approve/reject only, nothing auto-publishes
 - **Dashboard** with real KPIs
 
-Not yet built: Prompt Scout (Phase 4), Google Sheets/Drive integration (Phase 5), Prompt Tester/analytics/import-export (Phase 6), production hardening pass (Phase 7). The sidebar shows these as disabled "Coming soon" entries rather than non-functional buttons.
+Not yet built: Google Sheets/Drive integration (Phase 5), Prompt Tester/analytics/import-export (Phase 6), production hardening pass (Phase 7). The sidebar shows these as disabled "Coming soon" entries rather than non-functional buttons.
 
 ## Architecture
 
@@ -54,9 +55,11 @@ Copy `.env.example` to `.env.local` and fill in the values.
 | `OPENAI_API_KEY` | Semantic search (embeddings) | [platform.openai.com](https://platform.openai.com/) |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google sign-in | Google Cloud Console → APIs & Services → Credentials → OAuth client, redirect URI `<supabase-url>/auth/v1/callback`; enable the Google provider in Supabase Auth with these |
 | `GOOGLE_REDIRECT_URI` | Reserved for Phase 5 (Sheets/Drive) | — |
-| `TRIGGER_SECRET_KEY` / `TRIGGER_PROJECT_ID` | Phase 4+ (Prompt Scout) | Trigger.dev dashboard |
+| `TRIGGER_SECRET_KEY` / `TRIGGER_PROJECT_ID` | Trigger.dev CLI login/deploy | Trigger.dev dashboard |
 
 `.env.local` is gitignored and must never be committed. `SUPABASE_SERVICE_ROLE_KEY` bypasses Row Level Security — never expose it to client code or commit it.
+
+**Trigger.dev-only variables** (set in the Trigger.dev project dashboard → Environment Variables → Production, not in `.env.local` — the `weekly-prompt-scout` scheduled task runs headless on Trigger.dev's infrastructure, not in this app's own deployment): `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_SUPABASE_URL`, `ANTHROPIC_API_KEY`, `ANTHROPIC_WORKSPACE_ID`, `OPENAI_API_KEY`, `SCOUT_OWNER_USER_ID` (the single owning user's `auth.users` id — this app is single-tenant), and optionally `SCOUT_TIMEZONE` (IANA zone, defaults to `UTC`; check `https://cloud.trigger.dev/timezones` for the supported list before setting it — `Asia/Kolkata` was rejected by their validator despite being a standard IANA zone).
 
 ## Supabase setup
 
