@@ -365,3 +365,57 @@ export async function ratePrompt(promptId: string, rating: number) {
   revalidatePath(`/prompts/${promptId}`)
   revalidatePath("/dashboard")
 }
+
+/** Makes an old version the live prompt text again — as a new version, never by deleting history. */
+export async function restoreVersion(promptId: string, versionId: string) {
+  const user = await requireSession()
+  const supabase = await createClient()
+
+  const { data: version } = await supabase
+    .from("prompt_versions")
+    .select("title, prompt_text")
+    .eq("id", versionId)
+    .eq("prompt_id", promptId)
+    .single()
+
+  if (!version) throw new Error("Version not found")
+
+  const { error: updateError } = await supabase
+    .from("prompts")
+    .update({
+      title: version.title,
+      prompt_text: version.prompt_text,
+      variables: detectVariables(version.prompt_text),
+    })
+    .eq("id", promptId)
+    .eq("user_id", user.id)
+
+  if (updateError) throw new Error("Could not restore this version")
+
+  const { data: lastVersion } = await supabase
+    .from("prompt_versions")
+    .select("version_number")
+    .eq("prompt_id", promptId)
+    .order("version_number", { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  await supabase.from("prompt_versions").insert({
+    prompt_id: promptId,
+    version_number: (lastVersion?.version_number ?? 0) + 1,
+    title: version.title,
+    prompt_text: version.prompt_text,
+    change_source: "restored",
+    created_by: user.id,
+  })
+
+  await logAuditEvent({
+    userId: user.id,
+    action: "prompt.version_restored",
+    objectType: "prompt",
+    objectId: promptId,
+  })
+
+  revalidatePath(`/prompts/${promptId}`)
+  revalidatePath("/prompts")
+}

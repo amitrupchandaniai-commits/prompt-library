@@ -14,6 +14,7 @@ import { RatingStars } from "@/components/prompts/RatingStars"
 import { CopyButton } from "@/components/prompts/CopyButton"
 import { FavoriteButton } from "@/components/prompts/FavoriteButton"
 import { ArchiveDeleteMenu } from "@/components/prompts/ArchiveDeleteMenu"
+import { VersionHistory } from "@/components/prompts/VersionHistory"
 
 export default async function PromptDetailPage({
   params,
@@ -204,20 +205,8 @@ export default async function PromptDetailPage({
         <CardHeader>
           <CardTitle className="text-base">Version history</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2">
-          {versions.map((v) => (
-            <div
-              key={v.id}
-              className="flex items-center justify-between rounded-md border p-2 text-sm"
-            >
-              <span>
-                v{v.version_number} — {v.title}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {v.change_source} · {new Date(v.created_at).toLocaleString()}
-              </span>
-            </div>
-          ))}
+        <CardContent>
+          <VersionHistory promptId={prompt.id} versions={versions} />
         </CardContent>
       </Card>
     </div>
