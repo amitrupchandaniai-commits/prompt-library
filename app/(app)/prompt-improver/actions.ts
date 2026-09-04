@@ -61,7 +61,13 @@ export async function improvePrompt(
       prompt: parsed.data.promptText,
       schema: ImproverOutputSchema,
       schemaName: "prompt_improver_output",
-      maxTokens: 3072,
+      // 3072 was too low: this schema's output (7 scores + problemsFound +
+      // recommendations + a full rewritten prompt + explanation) is the most
+      // verbose structured output in the app, and got cut off mid-JSON for
+      // longer inputs — the Anthropic SDK's structured-output parser can't
+      // recover from truncated JSON, so this silently failed for anyone
+      // improving a longer prompt.
+      maxTokens: 8192,
     })
 
     await logAiUsage(supabase, {
@@ -76,6 +82,7 @@ export async function improvePrompt(
 
     return { result: result.data, originalPromptText: parsed.data.promptText }
   } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error"
     await logAiUsage(supabase, {
       userId: user.id,
       feature: "prompt_improver",
@@ -84,9 +91,14 @@ export async function improvePrompt(
       inputTokens: 0,
       outputTokens: 0,
       latencyMs: 0,
-      error: err instanceof Error ? err.message : "Unknown error",
+      error: message,
     })
-    return { error: "Couldn't analyze this prompt right now. Please try again." }
+    const truncated = /unterminated string|failed to parse structured output/i.test(message)
+    return {
+      error: truncated
+        ? "This prompt is too long for a full analysis right now. Try a shorter prompt, or split it into smaller parts."
+        : "Couldn't analyze this prompt right now. Please try again.",
+    }
   }
 }
 
