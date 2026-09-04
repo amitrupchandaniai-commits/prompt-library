@@ -53,11 +53,15 @@ Seven phases, per the master spec (§67). Each phase has explicit entry/exit cri
 
 **Not built**: nothing from the original spec — the Trends worksheet is created with headers only (deliberately; trend detection itself is Phase 6 scope, populating it now would be fake data). Google OAuth app remains in unverified "Testing" mode (invite-only test users) — going fully public would need Google's verification review, tracked as part of the deferred multi-tenant plan (see project memory), not required for the admin-only usage this phase was built for.
 
-## Phase 6 — Testing, Cost, Analytics, Recommendations
+## Phase 6 — Testing, Cost, Analytics, Recommendations (in progress)
 
 **Entry**: Phase 5 exit criteria met.
 **Scope**: Prompt Tester (multi-model), full cost dashboards, analytics (spec §65), audit log UI, import/export (TXT/CSV/JSON/Markdown/PDF, incl. to Drive), trend detection, personal recommendations (with opt-out).
 **Exit**: All of spec §65/§46/§47/§48/§44 implemented and demonstrated.
+
+**Built so far**: Cost dashboards (`/costs`, per `AI_COST_CONTROL.md` §4) — Daily/Weekly/Monthly cost, cost by feature, cost by model, cost by research run, all derived from `ai_usage_log`. Personal view (each user sees their own usage), not admin-wide. Closed two gaps found along the way: `research_run_id` was never populated on Prompt Scout's usage rows (now fixed in `lib/scout/pipeline.ts`/`lib/ai/usage.ts`), and the app's dark-mode chart palette failed accessibility validation (fixed in `app/globals.css` before any chart existed to inherit the bug). Also fixed, unrelated but found the same day: Prompt Improver was silently failing on longer prompts (`maxTokens` too low for its output schema, truncating mid-JSON).
+
+**Not built**: Prompt Tester, general analytics (spec §65), audit log UI (a per-user activity view — distinct from the cross-user feed already in `/admin`), import/export, trend detection, personal recommendations.
 
 ## Phase 7 — Hardening & Production
 
