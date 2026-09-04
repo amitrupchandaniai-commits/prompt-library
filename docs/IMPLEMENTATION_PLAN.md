@@ -43,11 +43,15 @@ Seven phases, per the master spec (§67). Each phase has explicit entry/exit cri
 
 **Not built**: "merge" action in the review queue, admin-configurable run limits (currently a code constant), fetching non-RSS source types (`api`/`web` sources can be registered but aren't fetched).
 
-## Phase 5 — Google Integration
+## Phase 5 — Google Integration ✅
 
 **Entry**: Phase 4 exit criteria met.
 **Scope**: Google OAuth connect flow, Sheets sync (per `GOOGLE_INTEGRATION.md`), Drive report upload, error handling that never fails the parent run, Settings → Google Integration UI.
-**Exit**: After a Prompt Scout run, "New Discoveries" sheet reflects candidates, a weekly report PDF lands in Drive, and both failure paths are demonstrated not to break the run.
+**Exit**: After a Prompt Scout run, "New Discoveries" sheet reflects candidates, a weekly report PDF lands in Drive, and both failure paths are demonstrated not to break the run — met, verified end-to-end in both local dev and production (a real run synced to a live spreadsheet and uploaded a report PDF, both `sheets_sync_status`/`drive_report_status` recorded correctly).
+
+**Built**: the full spec — OAuth connect/disconnect (`app/api/google/connect`, `app/api/google/callback`), AES-256-GCM token encryption at rest (`lib/google/crypto.ts`, app-layer rather than Supabase Vault — see its own code comment for why), automatic token refresh (`lib/google/tokens.ts`) so the unattended weekly cron stays connected, all 7 Sheets worksheets (`lib/google/sheets-schema.ts`, `lib/google/sheets.ts`), Drive folder structure + weekly report PDF (`lib/google/drive.ts`, `lib/google/report-pdf.ts`), the sync orchestrator hooked into `lib/scout/pipeline.ts` right after run completion (best-effort, isolated in its own try/catch so a Google failure never fails the parent run), and the opt-in reverse sync (Sheets Review Status/Reviewer Notes → Supabase, narrow column allow-list, `lib/google/reverse-sync.ts`) with a shared `publishCandidate()` (`lib/scout/publish-candidate.ts`) so a sheet-driven approval and an in-app approval always converge. Two new Trigger.dev scheduled tasks (`google-reverse-sync` daily, `google-sync-retry` hourly for failed syncs). Settings UI (`/settings`) shows live connection state, the spreadsheet link, and the reverse-sync toggle — no longer a disabled stub.
+
+**Not built**: nothing from the original spec — the Trends worksheet is created with headers only (deliberately; trend detection itself is Phase 6 scope, populating it now would be fake data). Google OAuth app remains in unverified "Testing" mode (invite-only test users) — going fully public would need Google's verification review, tracked as part of the deferred multi-tenant plan (see project memory), not required for the admin-only usage this phase was built for.
 
 ## Phase 6 — Testing, Cost, Analytics, Recommendations
 
