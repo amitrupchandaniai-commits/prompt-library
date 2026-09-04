@@ -65,7 +65,9 @@ Prompt Tester (`/prompt-tester`) — run a prompt against one or more models (Cl
 
 Audit log UI (`/activity`, nav label "Activity") — a per-user view of their own audit trail, distinct from `/admin`'s existing cross-user feed. No schema/RLS changes needed (a user could already read their own `audit_log` rows). Human-readable labels for all 13 logged actions (`lib/activity/labels.ts`). Closed a gap found while testing: running Prompt Scout never logged anything at all (only approving/rejecting a candidate did) — added `scout_run.started` logging to both the manual run action and the Trigger.dev weekly cron.
 
-**Not built**: general analytics (spec §65), import/export, trend detection, personal recommendations.
+Trend detection (`/prompt-scout/trends`) — an AI-generated weekly summary of emerging themes in Prompt Scout's discoveries, per your choice over a purely statistical (category-counting) approach. Closes the Phase 5 gap where the Google Sheets "Trends" worksheet was deliberately left header-only. New `trends` table (shared/single-tenant RLS, matching `sources`/`research_runs`). Decoupled from any single scout run — a new weekly Trigger.dev task (`detect-trends`, Sunday 03:00 UTC) analyzes the full calendar week's candidates, which may span multiple runs. Skips weeks with no data entirely (no AI call, no fabricated row), and the system prompt explicitly instructs the model to say so honestly rather than invent a pattern from weak signal. Found and fixed a real bug while testing: the query was feeding in candidates the analysis step had judged not useful (placeholder "N/A" titles, no description) alongside real ones — filtering on `description is not null` cleanly excludes that noise across every insert path in `pipeline.ts`.
+
+**Not built**: general analytics (spec §65), import/export, personal recommendations.
 
 ## Phase 7 — Hardening & Production
 
