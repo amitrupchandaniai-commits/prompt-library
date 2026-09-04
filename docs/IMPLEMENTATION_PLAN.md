@@ -61,7 +61,9 @@ Seven phases, per the master spec (§67). Each phase has explicit entry/exit cri
 
 **Built so far**: Cost dashboards (`/costs`, per `AI_COST_CONTROL.md` §4) — Daily/Weekly/Monthly cost, cost by feature, cost by model, cost by research run, all derived from `ai_usage_log`. Personal view (each user sees their own usage), not admin-wide. Closed two gaps found along the way: `research_run_id` was never populated on Prompt Scout's usage rows (now fixed in `lib/scout/pipeline.ts`/`lib/ai/usage.ts`), and the app's dark-mode chart palette failed accessibility validation (fixed in `app/globals.css` before any chart existed to inherit the bug). Also fixed, unrelated but found the same day: Prompt Improver was silently failing on longer prompts (`maxTokens` too low for its output schema, truncating mid-JSON).
 
-**Not built**: Prompt Tester, general analytics (spec §65), audit log UI (a per-user activity view — distinct from the cross-user feed already in `/admin`), import/export, trend detection, personal recommendations.
+Prompt Tester (`/prompt-tester`) — run a prompt against one or more models (Claude Opus/Sonnet/Haiku, GPT-5.1/Mini) and compare raw outputs side by side, with a pre-call cost estimate per model (`lib/costs/estimate.ts`) and per-model logging to `ai_usage_log`. Wires up the two stubs that were already in place (prompt detail page's "Test prompt" button, Sidebar nav entry). Added `AIProvider.generateText()` (`lib/ai/types.ts` + both providers) since the existing `generateStructured()` is hard-wired to schema-validated JSON — Tester needs a model's actual free-text output. Successful runs from a library prompt record tested models on `tested_models`, giving that already-defined-but-inert column (`supabase/migrations/0002_prompts.sql`) its first real use. Per-user soft caps stay deferred, same precedent as Builder/Improver.
+
+**Not built**: general analytics (spec §65), audit log UI (a per-user activity view — distinct from the cross-user feed already in `/admin`), import/export, trend detection, personal recommendations.
 
 ## Phase 7 — Hardening & Production
 
