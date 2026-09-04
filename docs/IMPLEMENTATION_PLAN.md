@@ -63,7 +63,9 @@ Seven phases, per the master spec (§67). Each phase has explicit entry/exit cri
 
 Prompt Tester (`/prompt-tester`) — run a prompt against one or more models (Claude Opus/Sonnet/Haiku, GPT-5.1/Mini) and compare raw outputs side by side, with a pre-call cost estimate per model (`lib/costs/estimate.ts`) and per-model logging to `ai_usage_log`. Wires up the two stubs that were already in place (prompt detail page's "Test prompt" button, Sidebar nav entry). Added `AIProvider.generateText()` (`lib/ai/types.ts` + both providers) since the existing `generateStructured()` is hard-wired to schema-validated JSON — Tester needs a model's actual free-text output. Successful runs from a library prompt record tested models on `tested_models`, giving that already-defined-but-inert column (`supabase/migrations/0002_prompts.sql`) its first real use. Per-user soft caps stay deferred, same precedent as Builder/Improver.
 
-**Not built**: general analytics (spec §65), audit log UI (a per-user activity view — distinct from the cross-user feed already in `/admin`), import/export, trend detection, personal recommendations.
+Audit log UI (`/activity`, nav label "Activity") — a per-user view of their own audit trail, distinct from `/admin`'s existing cross-user feed. No schema/RLS changes needed (a user could already read their own `audit_log` rows). Human-readable labels for all 13 logged actions (`lib/activity/labels.ts`). Closed a gap found while testing: running Prompt Scout never logged anything at all (only approving/rejecting a candidate did) — added `scout_run.started` logging to both the manual run action and the Trigger.dev weekly cron.
+
+**Not built**: general analytics (spec §65), import/export, trend detection, personal recommendations.
 
 ## Phase 7 — Hardening & Production
 
