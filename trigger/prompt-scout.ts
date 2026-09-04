@@ -1,6 +1,7 @@
 import { logger, schedules } from "@trigger.dev/sdk"
 import { createServiceClient } from "@/lib/supabase/service"
 import { runPromptScout, DEFAULT_SCOUT_CONFIG } from "@/lib/scout/pipeline"
+import { logAuditEvent } from "@/lib/audit"
 
 // Headless job: no session/cookies exist here, so the owning user must be
 // known up front rather than derived from a request. Single-tenant app today
@@ -23,6 +24,13 @@ export const weeklyPromptScout = schedules.task({
 
     const supabase = createServiceClient()
     const result = await runPromptScout(supabase, SCOUT_OWNER_USER_ID, DEFAULT_SCOUT_CONFIG)
+
+    await logAuditEvent({
+      userId: SCOUT_OWNER_USER_ID,
+      action: "scout_run.started",
+      objectType: "research_run",
+      objectId: result.runId,
+    })
 
     logger.log("Prompt Scout run complete", result)
     return result

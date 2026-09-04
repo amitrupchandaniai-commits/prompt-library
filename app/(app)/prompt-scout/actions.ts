@@ -17,6 +17,14 @@ export async function startScoutRun(): Promise<{ runId: string }> {
   const user = await requireSession()
   const supabase = await createClient()
   const result = await runPromptScout(supabase, user.id, DEFAULT_SCOUT_CONFIG)
+
+  await logAuditEvent({
+    userId: user.id,
+    action: "scout_run.started",
+    objectType: "research_run",
+    objectId: result.runId,
+  })
+
   revalidatePath("/prompt-scout")
   revalidatePath("/prompt-scout/queue")
   return result
