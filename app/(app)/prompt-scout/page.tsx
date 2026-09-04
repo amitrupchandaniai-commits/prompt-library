@@ -96,6 +96,9 @@ export default async function PromptScoutPage() {
         <Link href="/sources" className={buttonVariants({ variant: "outline" })}>
           Manage sources
         </Link>
+        <Link href="/prompt-scout/trends" className={buttonVariants({ variant: "outline" })}>
+          Trends
+        </Link>
       </div>
 
       <Card>

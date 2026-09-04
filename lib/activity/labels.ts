@@ -13,6 +13,7 @@ export const ACTION_LABELS: Record<string, string> = {
   "source.deleted": "Deleted a source",
   "google.disconnected": "Disconnected Google",
   "scout_run.started": "Ran Prompt Scout",
+  "trends.detected": "Ran trend detection",
   "scout_candidate.approved": "Approved a Prompt Scout candidate",
   "scout_candidate.rejected": "Rejected a Prompt Scout candidate",
 }

@@ -4,6 +4,7 @@ export const FEATURE_LABELS: Record<string, string> = {
   prompt_tester: "Prompt Tester",
   prompt_scout: "Prompt Scout",
   classification: "Classification",
+  trend_detection: "Trend Detection",
 }
 
 export function featureLabel(feature: string): string {

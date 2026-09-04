@@ -153,8 +153,10 @@ export function runToActivityRows(run: ResearchRunRow): string[][] {
   ]
 }
 
-// Trend detection is Phase 6 scope (docs/IMPLEMENTATION_PLAN.md) — this
-// worksheet is created with headers only. No row-builder here: populating it
-// with heuristic numbers now would be exactly the kind of fake/stub wiring
-// the project's cross-phase rules rule out.
 export const TRENDS_HEADERS = ["Week", "Trend", "Signal Strength", "Notes"] as const
+
+type TrendRow = Database["public"]["Tables"]["trends"]["Row"]
+
+export function trendToRow(trend: TrendRow): string[] {
+  return [trend.week_start, trend.trend, trend.signal_strength, trend.notes]
+}

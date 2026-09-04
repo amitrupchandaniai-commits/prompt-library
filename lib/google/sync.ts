@@ -11,10 +11,12 @@ import {
   WEEKLY_REPORTS_HEADERS,
   SOURCES_HEADERS,
   AGENT_ACTIVITY_HEADERS,
+  TRENDS_HEADERS,
   candidateToNewDiscoveriesRow,
   runToWeeklyReportsRow,
   sourceToRow,
   runToActivityRows,
+  trendToRow,
 } from "./sheets-schema"
 
 type ResearchCandidateRow = Database["public"]["Tables"]["research_candidates"]["Row"]
@@ -233,4 +235,31 @@ export async function syncCandidateToSheets(
     const targetSheet = candidate.review_status === "approved" ? SHEET_NAMES.approvedPrompts : SHEET_NAMES.rejectedPrompts
     await upsertRowsByKey(sheetsClient, integration.spreadsheet_id, targetSheet, NEW_DISCOVERIES_HEADERS, [row])
   }
+}
+
+/**
+ * Pushes all stored trends to the Trends worksheet. Decoupled from
+ * syncRunToGoogle: trend detection runs on its own weekly schedule
+ * (trigger/detect-trends.ts), not in lockstep with any single scout run's sync.
+ */
+export async function syncTrendsToSheets(supabase: SupabaseClient<Database>, userId: string): Promise<void> {
+  const { data: integration } = await supabase
+    .from("google_integrations")
+    .select("spreadsheet_id")
+    .eq("user_id", userId)
+    .single()
+
+  const { sheets: sheetsClient } = await getGoogleClients(supabase, userId)
+  const spreadsheetId = await ensureSpreadsheet(sheetsClient, supabase, userId, integration?.spreadsheet_id ?? null)
+
+  const { data: trends } = await supabase.from("trends").select("*").order("week_start", { ascending: false })
+  if (!trends || trends.length === 0) return
+
+  await upsertRowsByKey(
+    sheetsClient,
+    spreadsheetId,
+    SHEET_NAMES.trends,
+    TRENDS_HEADERS,
+    trends.map((trend) => ({ key: trend.id, values: trendToRow(trend) }))
+  )
 }
