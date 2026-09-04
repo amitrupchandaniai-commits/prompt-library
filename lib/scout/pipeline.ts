@@ -170,6 +170,7 @@ export async function runPromptScout(
             inputTokens: result.inputTokens,
             outputTokens: result.outputTokens,
             latencyMs: result.latencyMs,
+            researchRunId: run.id,
           })
         } catch (err) {
           errors.push(`Analysis failed for "${item.title}": ${err instanceof Error ? err.message : "unknown error"}`)

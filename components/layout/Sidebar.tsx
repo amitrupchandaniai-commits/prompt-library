@@ -22,6 +22,7 @@ import {
   Settings,
   Sparkle,
   ShieldCheck,
+  DollarSign,
 } from "lucide-react"
 
 type NavItem = {
@@ -42,6 +43,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Favorites", href: "/favorites", icon: Star },
   { label: "Recently Added", href: "/prompts?sort=recent", icon: Clock },
   { label: "Top Rated", href: "/prompts?sort=top-rated", icon: TrendingUp },
+  { label: "AI Costs", href: "/costs", icon: DollarSign },
   { label: "Settings", href: "/settings", icon: Settings },
 ]
 

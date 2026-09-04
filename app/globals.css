@@ -67,11 +67,14 @@
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.6 0.15 279);
-  --chart-1: oklch(0.6 0.19 279);
-  --chart-2: oklch(0.7 0.15 200);
-  --chart-3: oklch(0.75 0.16 60);
-  --chart-4: oklch(0.65 0.2 25);
-  --chart-5: oklch(0.6 0.12 150);
+  /* Categorical chart palette — dataviz skill's validated 5-slot reference
+     (blue/orange/aqua/yellow/magenta). The prior values failed CVD/lightness
+     checks in dark mode; fixed here before any chart existed to consume them. */
+  --chart-1: #2a78d6;
+  --chart-2: #eb6834;
+  --chart-3: #1baf7a;
+  --chart-4: #eda100;
+  --chart-5: #e87ba4;
   --radius: 0.625rem;
   --sidebar: oklch(0.985 0.002 279);
   --sidebar-foreground: oklch(0.205 0 0);
@@ -102,11 +105,11 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.6 0.15 279);
-  --chart-1: oklch(0.72 0.15 279);
-  --chart-2: oklch(0.75 0.13 200);
-  --chart-3: oklch(0.8 0.15 60);
-  --chart-4: oklch(0.7 0.18 25);
-  --chart-5: oklch(0.65 0.12 150);
+  --chart-1: #3987e5;
+  --chart-2: #d95926;
+  --chart-3: #199e70;
+  --chart-4: #c98500;
+  --chart-5: #d55181;
   --sidebar: oklch(0.18 0.01 279);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.72 0.15 279);

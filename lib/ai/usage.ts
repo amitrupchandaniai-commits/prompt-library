@@ -24,6 +24,7 @@ export async function logAiUsage(
     outputTokens: number
     latencyMs: number
     error?: string
+    researchRunId?: string | null
   }
 ) {
   try {
@@ -39,6 +40,7 @@ export async function logAiUsage(
       latency_ms: entry.latencyMs,
       cost_usd: costUsd,
       error: entry.error ?? null,
+      research_run_id: entry.researchRunId ?? null,
     })
 
     if (error) console.error("logAiUsage: insert failed", error)
