@@ -1,6 +1,12 @@
 import Anthropic from "@anthropic-ai/sdk"
 import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod"
-import type { AIProvider, GenerateStructuredParams, GenerateStructuredResult } from "./types"
+import type {
+  AIProvider,
+  GenerateStructuredParams,
+  GenerateStructuredResult,
+  GenerateTextParams,
+  GenerateTextResult,
+} from "./types"
 
 const DEFAULT_MODEL = "claude-sonnet-5"
 
@@ -43,6 +49,32 @@ export class AnthropicProvider implements AIProvider {
 
     return {
       data: response.parsed_output,
+      provider: "anthropic",
+      model: this.model,
+      inputTokens: response.usage.input_tokens,
+      outputTokens: response.usage.output_tokens,
+      latencyMs,
+    }
+  }
+
+  async generateText(params: GenerateTextParams): Promise<GenerateTextResult> {
+    const start = Date.now()
+
+    const response = await this.client.messages.create({
+      model: this.model,
+      max_tokens: params.maxTokens ?? 4096,
+      system: params.system,
+      messages: [{ role: "user", content: params.prompt }],
+    })
+
+    const latencyMs = Date.now() - start
+    const text = response.content
+      .filter((block): block is Anthropic.TextBlock => block.type === "text")
+      .map((block) => block.text)
+      .join("")
+
+    return {
+      text,
       provider: "anthropic",
       model: this.model,
       inputTokens: response.usage.input_tokens,

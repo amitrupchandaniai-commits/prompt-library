@@ -100,9 +100,12 @@ export default async function PromptDetailPage({
         <Button variant="outline" disabled title="Ships in a later phase">
           Create variation
         </Button>
-        <Button variant="outline" disabled title="Ships in Phase 6">
+        <Link
+          href={`/prompt-tester?promptId=${prompt.id}`}
+          className={buttonVariants({ variant: "outline" })}
+        >
           Test prompt
-        </Button>
+        </Link>
         <ArchiveDeleteMenu promptId={prompt.id} isArchived={prompt.is_archived} />
       </div>
 

@@ -1,6 +1,12 @@
 import OpenAI from "openai"
 import { zodResponseFormat } from "openai/helpers/zod"
-import type { AIProvider, GenerateStructuredParams, GenerateStructuredResult } from "./types"
+import type {
+  AIProvider,
+  GenerateStructuredParams,
+  GenerateStructuredResult,
+  GenerateTextParams,
+  GenerateTextResult,
+} from "./types"
 
 // NOTE: model default not verified against a live source in this session the
 // way the Anthropic default was — confirm against platform.openai.com/docs/models
@@ -41,6 +47,30 @@ export class OpenAIProvider implements AIProvider {
 
     return {
       data: parsed,
+      provider: "openai",
+      model: this.model,
+      inputTokens: completion.usage?.prompt_tokens ?? 0,
+      outputTokens: completion.usage?.completion_tokens ?? 0,
+      latencyMs,
+    }
+  }
+
+  async generateText(params: GenerateTextParams): Promise<GenerateTextResult> {
+    const start = Date.now()
+
+    const completion = await this.client.chat.completions.create({
+      model: this.model,
+      max_completion_tokens: params.maxTokens ?? 4096,
+      messages: [
+        ...(params.system ? [{ role: "system" as const, content: params.system }] : []),
+        { role: "user" as const, content: params.prompt },
+      ],
+    })
+
+    const latencyMs = Date.now() - start
+
+    return {
+      text: completion.choices[0]?.message.content ?? "",
       provider: "openai",
       model: this.model,
       inputTokens: completion.usage?.prompt_tokens ?? 0,
