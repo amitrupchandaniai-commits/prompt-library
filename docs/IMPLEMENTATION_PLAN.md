@@ -67,7 +67,9 @@ Audit log UI (`/activity`, nav label "Activity") — a per-user view of their ow
 
 Trend detection (`/prompt-scout/trends`) — an AI-generated weekly summary of emerging themes in Prompt Scout's discoveries, per your choice over a purely statistical (category-counting) approach. Closes the Phase 5 gap where the Google Sheets "Trends" worksheet was deliberately left header-only. New `trends` table (shared/single-tenant RLS, matching `sources`/`research_runs`). Decoupled from any single scout run — a new weekly Trigger.dev task (`detect-trends`, Sunday 03:00 UTC) analyzes the full calendar week's candidates, which may span multiple runs. Skips weeks with no data entirely (no AI call, no fabricated row), and the system prompt explicitly instructs the model to say so honestly rather than invent a pattern from weak signal. Found and fixed a real bug while testing: the query was feeding in candidates the analysis step had judged not useful (placeholder "N/A" titles, no description) alongside real ones — filtering on `description is not null` cleanly excludes that noise across every insert path in `pipeline.ts`.
 
-**Not built**: general analytics (spec §65), import/export, personal recommendations.
+General analytics (`/analytics`) — a personal view of your own library: prompts by category, top tags, an original/AI-discovered/AI-improved source breakdown, library growth over time, and most-favorited prompts. Wires up the Sidebar's disabled stub. Found two more dead columns matching the `tested_models`/Trend Detection pattern: `prompts.usage_count` is never incremented anywhere and is excluded entirely rather than showing a fake always-zero metric; `prompts.favorite_count` is also never synced, so favorite counts are derived live from the `favorites` table instead. Also fixed a `BarChart` bug this surfaced: its `formatValue` prop was a function, which Next.js rejects passing from a Server Component to a Client Component (`/costs` never hit this, since it only used the default) — changed to a serializable `format: "currency" | "integer"` string.
+
+**Not built**: import/export, personal recommendations.
 
 ## Phase 7 — Hardening & Production
 
