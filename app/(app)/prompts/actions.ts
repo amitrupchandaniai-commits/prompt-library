@@ -9,6 +9,8 @@ import { PromptSchema } from "@/lib/validations/prompt"
 import { slugify } from "@/lib/slugify"
 import { detectVariables } from "@/lib/variables"
 import { embedPrompt, embeddableContent } from "@/lib/ai/embed-prompt"
+import { exportToDrive } from "@/lib/export/drive"
+import type { ExportFormat, ExportScope } from "@/lib/export/types"
 
 export type PromptFormState = {
   error?: string
@@ -434,4 +436,25 @@ export async function restoreVersion(promptId: string, versionId: string) {
 
   revalidatePath(`/prompts/${promptId}`)
   revalidatePath("/prompts")
+}
+
+export async function exportToDriveAction(
+  scope: ExportScope,
+  id: string | null,
+  format: ExportFormat
+): Promise<{ fileId: string; webViewLink: string | null }> {
+  const user = await requireSession()
+  const supabase = await createClient()
+
+  const result = await exportToDrive(supabase, user.id, scope, id, format)
+
+  await logAuditEvent({
+    userId: user.id,
+    action: "export.completed",
+    objectType: scope,
+    objectId: id ?? undefined,
+    newValue: { format, destination: "drive", fileId: result.fileId },
+  })
+
+  return result
 }

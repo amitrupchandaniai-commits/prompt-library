@@ -14,6 +14,8 @@ export const ACTION_LABELS: Record<string, string> = {
   "google.disconnected": "Disconnected Google",
   "scout_run.started": "Ran Prompt Scout",
   "trends.detected": "Ran trend detection",
+  "export.completed": "Exported to Google Drive",
+  "import.completed": "Imported prompts",
   "scout_candidate.approved": "Approved a Prompt Scout candidate",
   "scout_candidate.rejected": "Rejected a Prompt Scout candidate",
 }

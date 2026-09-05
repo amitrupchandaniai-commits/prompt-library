@@ -5,6 +5,7 @@ import { getCollectionById } from "@/lib/queries/collections"
 import { Card, CardContent } from "@/components/ui/card"
 import { DeleteCollectionButton } from "@/components/collections/DeleteCollectionButton"
 import { RemoveFromCollectionButton } from "@/components/collections/RemoveFromCollectionButton"
+import { ExportMenu } from "@/components/export/ExportMenu"
 
 export default async function CollectionDetailPage({
   params,
@@ -26,7 +27,10 @@ export default async function CollectionDetailPage({
             <p className="mt-1 text-muted-foreground">{collection.description}</p>
           )}
         </div>
-        <DeleteCollectionButton collectionId={collection.id} />
+        <div className="flex items-center gap-2">
+          <ExportMenu scope="collection" id={collection.id} />
+          <DeleteCollectionButton collectionId={collection.id} />
+        </div>
       </div>
 
       {collection.collection_prompts.length === 0 ? (

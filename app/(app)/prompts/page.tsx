@@ -2,6 +2,7 @@ import Link from "next/link"
 import { requireSession } from "@/lib/dal"
 import { listPrompts, listCategories, searchPromptsSemantic } from "@/lib/queries/prompts"
 import { PromptCard } from "@/components/prompts/PromptCard"
+import { ExportMenu } from "@/components/export/ExportMenu"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -53,9 +54,15 @@ export default async function PromptsPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-tight">Prompt Library</h1>
-        <Link href="/prompts/new" className={buttonVariants()}>
-          New prompt
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/prompts/import" className={buttonVariants({ variant: "outline" })}>
+            Import
+          </Link>
+          <ExportMenu scope="library" />
+          <Link href="/prompts/new" className={buttonVariants()}>
+            New prompt
+          </Link>
+        </div>
       </div>
 
       <form className="flex flex-wrap items-center gap-2" action="/prompts">

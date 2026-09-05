@@ -15,6 +15,7 @@ import { CopyButton } from "@/components/prompts/CopyButton"
 import { FavoriteButton } from "@/components/prompts/FavoriteButton"
 import { ArchiveDeleteMenu } from "@/components/prompts/ArchiveDeleteMenu"
 import { VersionHistory } from "@/components/prompts/VersionHistory"
+import { ExportMenu } from "@/components/export/ExportMenu"
 
 export default async function PromptDetailPage({
   params,
@@ -106,6 +107,7 @@ export default async function PromptDetailPage({
         >
           Test prompt
         </Link>
+        <ExportMenu scope="prompt" id={prompt.id} />
         <ArchiveDeleteMenu promptId={prompt.id} isArchived={prompt.is_archived} />
       </div>
 

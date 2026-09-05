@@ -17,6 +17,8 @@ const KNOWN_ACTIONS = [
   "google.disconnected",
   "scout_run.started",
   "trends.detected",
+  "export.completed",
+  "import.completed",
   "scout_candidate.approved",
   "scout_candidate.rejected",
 ]
