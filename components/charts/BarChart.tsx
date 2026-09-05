@@ -4,6 +4,16 @@ import { useState } from "react"
 
 export type ChartBar = { label: string; value: number }
 export type ChartColorSlot = "chart-1" | "chart-2" | "chart-3" | "chart-4" | "chart-5"
+export type ChartValueFormat = "currency" | "integer"
+
+// A serializable format choice, not a function prop: this component is used
+// from Server Component pages (app/(app)/costs, app/(app)/analytics), and
+// Next.js can't pass an inline function from a Server Component to a Client
+// Component ("Functions cannot be passed directly to Client Components").
+const VALUE_FORMATTERS: Record<ChartValueFormat, (value: number) => string> = {
+  currency: (v) => `$${v.toFixed(4)}`,
+  integer: (v) => String(v),
+}
 
 // Literal class names so Tailwind's scanner can find them — a template-literal
 // `bg-${colorVar}` string would never be generated.
@@ -25,15 +35,16 @@ const BAR_FILL_CLASS: Record<ChartColorSlot, string> = {
 export function BarChart({
   bars,
   color = "chart-1",
-  formatValue = (v: number) => `$${v.toFixed(4)}`,
+  format = "currency",
   emptyMessage = "No data yet.",
 }: {
   bars: ChartBar[]
   color?: ChartColorSlot
-  formatValue?: (value: number) => string
+  format?: ChartValueFormat
   emptyMessage?: string
 }) {
   const [hovered, setHovered] = useState<number | null>(null)
+  const formatValue = VALUE_FORMATTERS[format]
 
   if (bars.length === 0) {
     return <p className="text-sm text-muted-foreground">{emptyMessage}</p>

@@ -46,6 +46,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Recently Added", href: "/prompts?sort=recent", icon: Clock },
   { label: "Top Rated", href: "/prompts?sort=top-rated", icon: TrendingUp },
   { label: "AI Costs", href: "/costs", icon: DollarSign },
+  { label: "Analytics", href: "/analytics", icon: BarChart3 },
   { label: "Activity", href: "/activity", icon: History },
   { label: "Settings", href: "/settings", icon: Settings },
 ]
@@ -54,7 +55,6 @@ const COMING_SOON_ITEMS: NavItem[] = [
   { label: "Discover", href: "/discover", icon: Compass, comingSoon: true },
   { label: "Google Sheets", href: "/integrations/sheets", icon: Sheet, comingSoon: true },
   { label: "Google Drive", href: "/integrations/drive", icon: HardDrive, comingSoon: true },
-  { label: "Analytics", href: "/analytics", icon: BarChart3, comingSoon: true },
 ]
 
 function NavLink({ item, isActive }: { item: NavItem; isActive: boolean }) {
